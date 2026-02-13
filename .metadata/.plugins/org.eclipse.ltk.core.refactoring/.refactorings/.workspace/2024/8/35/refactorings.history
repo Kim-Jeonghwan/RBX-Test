@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">&#x0A;<refactoring comment="Delete 4 resources" deleteContents="false" description="Delete 4 resources" element1="/SCI/CSU/CUS_Oerator.c" element2="/SCI/CSU/CUS_Oerator.h" element3="/SCI/CSU/CUS_SchoolBellArray.c" element4="/SCI/CSU/CUS_SchoolBellArray.h" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="4" stamp="1725087022327"/>&#x0A;<refactoring comment="Delete 2 resources" deleteContents="false" description="Delete 2 resources" element1="/SCI/Dev/NC_Can.c" element2="/SCI/Dev/NC_Can.h" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="2" stamp="1725087179275"/>
-</session>
