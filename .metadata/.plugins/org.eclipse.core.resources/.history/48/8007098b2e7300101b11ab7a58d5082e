@@ -1,0 +1,101 @@
+/**********************************************************************
+
+	Nexcom Co., Ltd.
+	Copyright 2021. All Rights Reserved.
+
+	Filename		: CSU_Switch.h
+	Version		: 00.10
+	Description	: 
+	Tracebility	: 
+	Programmer	: 
+	Last Updated	: 2025. 08. 07.
+
+	Function List	: 
+					
+
+**********************************************************************/
+
+
+
+/**********************************************************************
+
+	Nexcom Co., Ltd.
+	Copyright 2021. All Rights Reserved.
+
+	Filename		: CSU_Switch.h
+	Version		: 00.10
+	Description	: 
+	Tracebility	: 
+	Programmer	: 
+	Last Updated	: 2025. 08. 05.
+
+	Function List	: 
+					
+
+**********************************************************************/
+
+/*
+ * Modification History
+ * --------------------
+ * 
+ * 
+*/
+
+
+/* DESCRIPTION
+ * 
+ * 
+*/
+
+
+#ifndef CSU_SWITCH_H
+#define CSU_SWITCH_H
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include "main.h"
+
+
+/* ************************** [[   define   ]]  *********************************************************** */
+
+
+
+/* ************************** [[   enum or struct   ]]  *************************************************** */
+typedef struct
+{
+	Uint16 State	:1u;		// 0: Off, 1: On	[ 상태 ]
+	Uint16 Read		:1u;		// 0: Off, 1: On 
+	Uint16 Chatter	:14u;		// Read 상태가 일정 시간동안  유지되면 State 상태 변경
+} mSwitch;
+
+typedef struct
+{
+    mSwitch pwrWarnLamp;	// [ POWER ] - WARN LAMP
+    mSwitch opRemote;		// [ REMOTE/LOCAL OPERATION ] - REMOTE
+	mSwitch opLocal;		// [ REMOTE/LOCAL OPERATION ] - LOCAL
+	mSwitch opElevation;	// [ REMOTE/LOCAL OPERATION ] - ELEVATION
+	mSwitch opAzimuth;		// [ REMOTE/LOCAL OPERATION ] - AZIMUTH
+	mSwitch setStart;		// [ SETUP OPERATION ] - START
+	mSwitch setStop;		// [ SETUP OPERATION ] - STOP
+	mSwitch saUp;			// [ SETUP ANGLE ] - UP
+	mSwitch saLeft;			// [ SETUP ANGLE ] - LEFT
+	mSwitch saCenter;		// [ SETUP ANGLE ] - CENTER
+	mSwitch saRight;		// [ SETUP ANGLE ] - RIGHT
+	mSwitch saDown;			// [ SETUP ANGLE ] - DOWN
+	mSwitch stsStatusCheck;	// [ STATUS ] - STATUS CHECK
+	mSwitch stsLampTest;	// [ STATUS ] - LAMP TEST
+	mSwitch EmergencyStop;	// [ EMERGENCY STOP ]
+} stSwitch;
+
+
+
+/* ************************** [[   global   ]]  *********************************************************** */
+extern stSwitch xSwitch;
+
+
+/* ************************** [[  function  ]]  *********************************************************** */
+void probeSwitchStatus(void);
+
+void initGpioDinSwitch(void);
+
+#endif	// #ifndef CSU_SWITCH_H
+

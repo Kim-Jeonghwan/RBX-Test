@@ -1,0 +1,24 @@
+
+**** Build of configuration Debug for project ControlLED ****
+
+"C:\\ti\\ccs1270\\ccs\\utils\\bin\\gmake" -k -j 16 all -O 
+ 
+Building file: "../DEV/DevCommon.c"
+Invoking: C2000 Compiler
+"C:/ti/ccs1270/ccs/tools/compiler/ti-cgt-c2000_22.6.1.LTS/bin/cl2000" -v28 -ml -mt --cla_support=cla2 --float_support=fpu64 --idiv_support=idiv0 --tmu_support=tmu0 --vcu_support=vcrc --include_path="C:/0_Work/01_Study/1_Src/Kit28386/LED/ControlLED" --include_path="C:/ti/ccs1270/ccs/tools/compiler/ti-cgt-c2000_22.6.1.LTS/include" --include_path="C:/0_Work/01_Study/1_Src/Kit28386/LED/ControlLED/SDK/common/include" --include_path="C:/0_Work/01_Study/1_Src/Kit28386/LED/ControlLED/SDK/headers/include" --include_path="C:/0_Work/01_Study/1_Src/Kit28386/LED/ControlLED/DEV" --include_path="C:/0_Work/01_Study/1_Src/Kit28386/LED/ControlLED/CSU" --advice:performance=all --define=CPU1 --define=USE_20MHZ_XTAL -g --diag_warning=225 --diag_wrap=off --display_error_number --gen_func_subsections=on --abi=eabi --preproc_with_compile --preproc_dependency="DEV/DevCommon.d_raw" --obj_directory="DEV"  "../DEV/DevCommon.c"
+"../DEV/DevCommon.c", line 40: warning #552-D: variable "xTest" was set but never used
+Finished building: "../DEV/DevCommon.c"
+ 
+Building file: "../CSU/CUS_SchoolBellArray.c"
+Invoking: C2000 Compiler
+"C:/ti/ccs1270/ccs/tools/compiler/ti-cgt-c2000_22.6.1.LTS/bin/cl2000" -v28 -ml -mt --cla_support=cla2 --float_support=fpu64 --idiv_support=idiv0 --tmu_support=tmu0 --vcu_support=vcrc --include_path="C:/0_Work/01_Study/1_Src/Kit28386/LED/ControlLED" --include_path="C:/ti/ccs1270/ccs/tools/compiler/ti-cgt-c2000_22.6.1.LTS/include" --include_path="C:/0_Work/01_Study/1_Src/Kit28386/LED/ControlLED/SDK/common/include" --include_path="C:/0_Work/01_Study/1_Src/Kit28386/LED/ControlLED/SDK/headers/include" --include_path="C:/0_Work/01_Study/1_Src/Kit28386/LED/ControlLED/DEV" --include_path="C:/0_Work/01_Study/1_Src/Kit28386/LED/ControlLED/CSU" --advice:performance=all --define=CPU1 --define=USE_20MHZ_XTAL -g --diag_warning=225 --diag_wrap=off --display_error_number --gen_func_subsections=on --abi=eabi --preproc_with_compile --preproc_dependency="CSU/CUS_SchoolBellArray.d_raw" --obj_directory="CSU"  "../CSU/CUS_SchoolBellArray.c"
+Finished building: "../CSU/CUS_SchoolBellArray.c"
+ 
+Building target: "ControlLED.out"
+Invoking: C2000 Linker
+"C:/ti/ccs1270/ccs/tools/compiler/ti-cgt-c2000_22.6.1.LTS/bin/cl2000" -v28 -ml -mt --cla_support=cla2 --float_support=fpu64 --idiv_support=idiv0 --tmu_support=tmu0 --vcu_support=vcrc --advice:performance=all --define=CPU1 --define=USE_20MHZ_XTAL -g --diag_warning=225 --diag_wrap=off --display_error_number --gen_func_subsections=on --abi=eabi -z -m"ControlLED.map" --stack_size=0x200 --warn_sections -i"C:/ti/ccs1270/ccs/tools/compiler/ti-cgt-c2000_22.6.1.LTS/lib" -i"C:/ti/ccs1270/ccs/tools/compiler/ti-cgt-c2000_22.6.1.LTS/include" --reread_libs --diag_wrap=off --display_error_number --xml_link_info="ControlLED_linkInfo.xml" --rom_model -o "ControlLED.out" "./main.obj" "./CSU/CUS_SchoolBell.obj" "./CSU/CUS_SchoolBellArray.obj" "./DEV/DevCommon.obj" "./DEV/DevDspInit.obj" "./DEV/DevTimer.obj" "./SDK/common/source/f2838x_adc.obj" "./SDK/common/source/f2838x_codestartbranch.obj" "./SDK/common/source/f2838x_cputimers.obj" "./SDK/common/source/f2838x_dcsm_z1otp.obj" "./SDK/common/source/f2838x_dcsm_z2otp.obj" "./SDK/common/source/f2838x_defaultisr.obj" "./SDK/common/source/f2838x_dma.obj" "./SDK/common/source/f2838x_ecap.obj" "./SDK/common/source/f2838x_emif.obj" "./SDK/common/source/f2838x_epwm.obj" "./SDK/common/source/f2838x_eqep.obj" "./SDK/common/source/f2838x_gpio.obj" "./SDK/common/source/f2838x_mcbsp.obj" "./SDK/common/source/f2838x_piectrl.obj" "./SDK/common/source/f2838x_pievect.obj" "./SDK/common/source/f2838x_sdfm_drivers.obj" "./SDK/common/source/f2838x_struct.obj" "./SDK/common/source/f2838x_sysctrl.obj" "./SDK/common/source/f2838x_tempsensorconv.obj" "./SDK/common/source/f2838x_usdelay.obj" "./SDK/headers/source/f2838x_globalvariabledefs.obj" "../SDK/common/cmd/2838x_RAM_lnk_cpu1.cmd" "../SDK/headers/cmd/f2838x_headers_nonBIOS_cpu1.cmd"  -llibc.a 
+<Linking>
+Finished building target: "ControlLED.out"
+ 
+
+**** Build Finished ****

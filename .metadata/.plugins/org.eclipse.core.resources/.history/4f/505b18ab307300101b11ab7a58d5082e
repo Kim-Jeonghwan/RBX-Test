@@ -1,0 +1,189 @@
+/**********************************************************************
+
+	Nexcom Co., Ltd.
+	Copyright 2021. All Rights Reserved.
+
+	Filename		: CSU_DCE_Scib.c
+	Version		    : 00.10
+	Description	    :
+	Tracebility	    :
+	Programmer	    :
+	Last Updated	: 2025. 08. 04.
+
+**********************************************************************/
+
+/*
+ * Modification History
+ * --------------------
+ * 
+ * 
+*/
+
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include "CSU_DCE_Scib.h"
+
+
+
+/* ************************** [[   define   ]]  *********************************************************** */
+#define DCE_SOF		0x7Eu
+#define DCE_EOF		0xE7u
+#define DCE_MSG1	0x20u
+
+
+/* ************************** [[   global   ]]  *********************************************************** */
+stRcvDceMsg1	xRcvDceMsg1;
+stXmtDceMsg1	xXmtDceMsg1;
+
+
+
+/* ************************** [[  static prototype  ]]  *************************************************** */
+
+
+
+
+/* ************************** [[  function  ]]  *********************************************************** */
+/*
+@funtion	void recvDceMessage(Uint16 ID, Uint16 Data[])
+@brief		
+@param		[ Uint16 ID ]	
+@param		[ Uint16 Data[] ]	
+@return		void
+@remark	
+	-	
+*/
+void recvDceMessage(Uint16 ID, Uint16 Data[])
+{
+	volatile Uint16 pos = 0u;
+
+	onConv32 onCovn32;
+	Uint32 Conv32 = 0u;
+	Uint16 Conv16 = 0u;
+	
+
+	switch(ID)
+	{
+	case 0x10u:
+		xRcvDceMsg1.IncNumber = Data[pos++];
+
+		conv4B.B0 = Data[pos++];
+		conv4B.B1 = Data[pos++];
+		conv4B.B2 = Data[pos++];
+		conv4B.B3 = Data[pos++];
+		(void)memcpy(&xRcvDceMsg1.Reserved1, &conv4B, sizeof(conv4B));
+
+		conv4B.B0 = Data[pos++];
+		conv4B.B1 = Data[pos++];
+		conv4B.B2 = Data[pos++];
+		conv4B.B3 = Data[pos++];
+		(void)memcpy(&xRcvDceMsg1.Reserved2, &conv4B, sizeof(conv4B));
+
+		Conv32  = (Uint32)Data[pos++];
+		Conv32 |= ((Uint32)Data[pos++]) << 8u;
+		Conv32 |= ((Uint32)Data[pos++]) << 16u;
+		Conv32 |= ((Uint32)Data[pos++]) << 24u;
+		xRcvDceMsg1.Reserved3 = *((float32*)&Conv32);
+
+		if(Data[pos] == 1)
+		{
+		    setLedState(&xLed.stsAntLock1, LED_GREEN, LED_ON);
+		}
+		else if(Data[pos] == 2)
+		{
+		    setLedState(&xLed.stsAntLock1, LED_GREEN, LED_OFF);
+		}
+		else if(Data[pos] == 4)
+		{
+		    setLedToggle(&xLed.stsAntLock1, LED_TOGGLE, 2u);
+		}
+		else if(Data[pos] == 8)
+		{
+		    setLedToggle(&xLed.stsAntLock1, LED_NONE, 0u);
+		}
+		else 
+		{
+			// MISRA
+		}
+
+		Conv16	= Data[pos++];
+		Conv16 |= (Data[pos++]) << 8u;
+		(void)memcpy(&xRcvDceMsg1.LedCmd, &Conv16, sizeof(Conv16));
+	break;
+	
+	default:
+	break;
+	}
+}
+
+
+
+/*
+@funtion	void sendDceMessage1(void)
+@brief		
+@param		void
+@return		void
+@remark	
+	-	main.c 
+	-	10ms аж╠Б
+*/
+void sendDceMessage1(void)
+{
+	Uint16 i = 0u;
+	volatile Uint16 pos = 0u;
+	Uint16 Buf[26u] = {0u, };
+	Uint32 Conv32 = 0u;
+	Uint16 Conv16 = 0u;
+	Uint16 CheckSum = 0u;
+
+	Buf[pos++] = DCE_SOF;	// SOF
+	Buf[pos++] = DCE_MSG1;	// Message ID
+	Buf[pos++] = 0u;
+	
+	Buf[pos++] = xXmtDceMsg1.IncNumber++;
+	Buf[pos++] = xXmtDceMsg1.Reserved1 & 0xFFu;
+	Buf[pos++] = (xXmtDceMsg1.Reserved1 >> 8u) & 0xFF;
+	Buf[pos++] = xXmtDceMsg1.Reserved2 & 0xFFu;
+	Buf[pos++] = (xXmtDceMsg1.Reserved2 >> 8u) & 0xFF;
+
+	Conv32 = *((Uint32*)&xXmtDceMsg1.Sine);
+	Buf[pos++] = (Conv32) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 8u) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 16u) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 24u) & 0xFFu;
+	
+	Conv32 = *((Uint32*)&xXmtDceMsg1.Square);
+	Buf[pos++] = (Conv32) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 8u) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 16u) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 24u) & 0xFFu;
+
+	Conv32 = *((Uint32*)&xXmtDceMsg1.Cosine);
+	Buf[pos++] = (Conv32) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 8u) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 16u) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 24u) & 0xFFu;
+
+	memcpy(&Conv16, &xRcvDceMsg1.LedCmd, sizeof(Uint16));
+	Buf[pos++] = Conv16 & 0xFFu;
+	Buf[pos++] = (Conv16 >> 8u) & 0xFFu;
+
+	memcpy(&Conv16, &xXmtDceMsg1.LedStatus, sizeof(Uint16));
+	Buf[pos++] = Conv16 & 0xFFu;
+	Buf[pos++] = (Conv16 >> 8u) & 0xFFu;
+
+	// Message Length 
+	Buf[2u] = pos - 3u;
+
+	for(i = 0u; i < Buf[2u]; i++)
+	{
+		CheckSum += Buf[i+3u];
+	}
+
+	Buf[pos++] = CheckSum & 0xFFu;
+	Buf[pos++] = DCE_EOF;
+
+	xmtScib_DCE(Buf, sizeof(Buf));
+}
+
+
+

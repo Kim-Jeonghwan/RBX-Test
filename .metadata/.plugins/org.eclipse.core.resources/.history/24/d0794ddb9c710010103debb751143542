@@ -1,0 +1,220 @@
+/**********************************************************************
+
+	Nexcom Co., Ltd.
+	Copyright 2021. All Rights Reserved.
+
+	Filename		: DevDspInit.c
+	Version			: 00.01
+	Description		: 
+	Tracebility		: 
+	Programmer	: 
+	Last Updated	: 2025. 08. 04.
+
+	Function List	:	
+						
+
+**********************************************************************/
+
+/*
+ * Modification History
+ * --------------------
+ * 
+ * 
+*/
+
+
+/* DESCRIPTION
+ * 
+ * 
+*/
+
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include "DevDspInit.h"
+
+/* ************************** [[   define   ]]  *********************************************************** */
+#define KIT_LED_1	32u
+#define KIT_LED_2	33u
+#define KIT_LED_3	34u
+#define KIT_LED_4	35u
+#define KIT_LED_5	36u
+#define KIT_LED_6	37u
+#define KIT_LED_7	38u
+#define KIT_LED_8	39u
+
+#define KIT_SWITCH1	64u
+#define KIT_SWITCH2	65u
+
+
+/* ************************** [[   global   ]]  *********************************************************** */
+
+
+/* ************************** [[  function  ]]  *********************************************************** */
+/*
+@funtion	void DSP_Initialization(void)
+@brief		DSP 초기화 
+@param		void
+@return		void
+@remark	
+	-	
+*/
+void DSP_Initialization(void)
+{
+	// 시스템 및 주변회로 클럭 설정
+	Device_init();
+
+	Initial_GPIO();
+
+
+	// 주변회로 인터럽트 확장 회로(PIE) 및 관련 레지스터 초기화 / CPU 인터럽트 비-활성화
+	Interrupt_initModule();
+
+	// PIE 벡터 테이블 초기화 및 기본 인터럽트 서비스 루틴 연결
+	Interrupt_initVectorTable();
+
+
+	InitialPeripherals();
+
+	/* Initial Golbal Variable */
+	InitialVariable();
+
+	// 실시간 디버깅 활성화, 전역 인터럽트 스위치 ON
+	ERTM;	// Debug Enable Mask 비트 설정 (실시간 디버깅이 가능하도록 ST1 레지스터의 /DBGM 비트를 0으로 클리어)
+	EINT;	// 전역 인터럽트 스위치 ON (/INTM ON)
+
+	/* Initial Golbal Variable */
+	InitialVariable();
+
+}
+
+
+
+
+
+
+/*
+@funtion	static void Initial_GPIO(void)
+@brief		GPIO 초기화(DIN or DOUT)
+@param		void
+@return		static void
+@remark	
+	-	CAN, SPI, SCI, I2C GPIO는 각각  설정함 
+*/
+
+static void Initial_GPIO(void)
+{
+	Init_GpioDin();
+	
+	Init_GpioDout();
+}
+
+/*
+@funtion	static void Init_GpioDin(void)
+@brief		
+@param		void
+@return		static void
+@remark	
+	-	
+*/
+static void Init_GpioDin(void)
+{
+}
+
+
+/*
+@funtion	static void Init_GpioDout(void)
+@brief		
+@param		void
+@return		static void
+@remark	
+	-	
+*/
+static void Init_GpioDout(void)
+{
+	// KIT LED 1
+	GPIO_setPinConfig(GPIO_32_GPIO32);
+	GPIO_setDirectionMode(KIT_LED_1, GPIO_DIR_MODE_OUT);
+
+	// KIT LED 2
+	GPIO_setPinConfig(GPIO_33_GPIO33);
+	GPIO_setDirectionMode(KIT_LED_2, GPIO_DIR_MODE_OUT);
+
+	// KIT LED 3
+	GPIO_setPinConfig(GPIO_34_GPIO34);
+	GPIO_setDirectionMode(KIT_LED_3, GPIO_DIR_MODE_OUT);
+
+	// KIT LED 4
+	GPIO_setPinConfig(GPIO_35_GPIO35);
+	GPIO_setDirectionMode(KIT_LED_4, GPIO_DIR_MODE_OUT);
+
+	// KIT LED 5
+	GPIO_setPinConfig(GPIO_36_GPIO36);
+	GPIO_setDirectionMode(KIT_LED_5, GPIO_DIR_MODE_OUT);
+
+	// KIT LED 6
+	GPIO_setPinConfig(GPIO_37_GPIO37);
+	GPIO_setDirectionMode(KIT_LED_6, GPIO_DIR_MODE_OUT);
+
+	// KIT LED 7
+	GPIO_setPinConfig(GPIO_38_GPIO38);
+	GPIO_setDirectionMode(KIT_LED_7, GPIO_DIR_MODE_OUT);
+
+	// KIT LED 8
+	GPIO_setPinConfig(GPIO_39_GPIO39);
+	GPIO_setDirectionMode(KIT_LED_8, GPIO_DIR_MODE_OUT);
+
+
+
+	// KIT Switch 1
+	GPIO_setPinConfig(GPIO_64_GPIO64);
+	GPIO_setDirectionMode(64u, GPIO_DIR_MODE_OUT);
+
+	// KIT Switch 2
+	GPIO_setPinConfig(GPIO_65_GPIO65);
+	GPIO_setDirectionMode(65u, GPIO_DIR_MODE_OUT);
+
+}
+
+
+
+/*
+@funtion	static void DevInitPeripherals(void)
+@brief		DSP 주변 디바이스 초기화 설정
+@param		void
+@return		static void
+@remark	
+	-	
+*/
+static void InitialPeripherals(void)
+{
+	//easyDSP_SCI_Init();
+
+	//Initial_ADC();
+	
+	//Initial_SPI();
+
+	Initial_SCI();
+
+	Initial_TIMER();
+}
+
+
+
+/*
+@funtion	static void InitialVariable(void)
+@brief		글로벌 변수 초기화 
+@param		void
+@return		void
+@remark	
+	-	
+*/
+static void InitialVariable(void)
+{
+	(void)memset(&xXmtDceMsg1, 0u, sizeof(xXmtDceMsg1));
+	
+	xXmtDceMsg1.SOF = 0x7Eu;
+	xXmtDceMsg1.MsgID = 0x20u;
+	xXmtDceMsg1.MsgLength = 21u;
+	xXmtDceMsg1.EOF = 0xE7u;
+}
+

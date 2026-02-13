@@ -1,0 +1,74 @@
+/**********************************************************************
+
+	Nexcom Co., Ltd.
+	Copyright 2021. All Rights Reserved.
+
+	Filename		: CSU_Switch.c
+	Version			: 00.01
+	Description		: 
+	Tracebility		: 
+	Programmer	: 
+	Last Updated	: 2025. 08. 05.
+
+	Function List	:	
+						
+
+**********************************************************************/
+
+/*
+ * Modification History
+ * --------------------
+ * 
+ * 
+*/
+
+
+/* DESCRIPTION
+ * 
+ * 
+*/
+
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include "CSU_Switch.h"
+
+/* ************************** [[   define   ]]  *********************************************************** */
+#define CNT_CHATTERING_SWITCH	5u
+
+/* ************************** [[   global   ]]  *********************************************************** */
+stSwitch xSwitch;
+
+
+/* ************************** [[  function  ]]  *********************************************************** */
+
+
+
+static void ChatteringDin(void)
+{
+	Uint16 i = 0u;
+
+	mSwitch *pSwitch = &xSwitch.pwrWarnLamp;
+
+	for(i = 0u; i < GetCountDiscreteIn(); i ++)
+	{
+		if(pSwitch->Status != pSwitch->Read)
+		{
+			if(pSwitch->Chatter >= CNT_CHATTERING_SWITCH)
+			{
+				pSwitch->Status = pSwitch->Read;
+			}
+			else
+			{
+				pSwitch->Chatter ++;
+			}
+		}
+		else
+		{
+			pSwitch->Chatter = 0u;
+		}
+
+		pSwitch++;
+	}
+}
+
+

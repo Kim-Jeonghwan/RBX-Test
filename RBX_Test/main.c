@@ -1,0 +1,163 @@
+/**********************************************************************
+    Nexcom Co., Ltd.
+    Filename         : main.c
+    Description      : 
+    Last Updated     : 2026. 02. 02.
+**********************************************************************/
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include "main.h"
+#include "CSU_LED.h"
+#include "CSU_SSI.h"
+#include "CSU_Zero.h"
+#include "CSU_IPC.h"
+#include "CSU_eQEP.h"
+
+
+
+/* ************************** [[   define   ]]  *********************************************************** */
+
+
+
+/* ************************** [[   global   ]]  *********************************************************** */
+
+
+
+/* ************************** [[  static prototype  ]]  *************************************************** */
+// Cycle 1ms(1000Hz)
+static void cycle_1ms(void);
+
+// 10ms(100Hz)
+static void cycle_10ms(void);
+
+// 100ms(10Hz)
+static void cycle_100ms(void);
+
+// 1000ms(1Hz)
+static void cycle_1000ms(void);
+
+
+
+/* ************************** [[  function  ]]  *********************************************************** */
+/*
+@funtion	void main(void)
+@brief		
+@param		void
+@return		void
+@remark	
+	-	
+*/
+void main(void)
+{
+	DSP_Initialization();
+
+	// Idle(Background) Loop
+	while(1u)
+	{
+		if(xTimer.Cycle_1ms >= 1u)
+		{
+			cycle_1ms();
+			xTimer.Cycle_1ms = 0u;
+		}
+
+		if(xTimer.Cycle_10ms >= 10u)
+		{
+			cycle_10ms();
+			xTimer.Cycle_10ms = 0u;
+		}
+
+		if(xTimer.Cycle_100ms >= 100u)
+		{
+			cycle_100ms();
+			xTimer.Cycle_100ms = 0u;
+		}
+
+		if(xTimer.Cycle_1000ms >= 1000u)
+		{
+			cycle_1000ms();
+			xTimer.Cycle_1000ms = 0u;
+		}
+	}
+}
+
+
+
+/*
+@funtion	static void cycle_1ms(void)
+@brief		1ms 마다 수행 하는 동작 
+@param		void
+@return		static void
+@remark	
+	-	
+*/
+static void cycle_1ms(void)
+{
+	// Create code
+	xTimer.Hzcnt++;
+}
+
+
+
+
+/*
+@funtion	static void cycle_10ms(void)
+@brief		10ms 마다 수행 하는 동작 
+@param		void
+@return		static void
+@remark	
+	-	
+*/
+static void cycle_10ms(void)
+{
+    // // 1. 엔코더 값을 먼저 읽어서 구조체를 최신화함
+    PollingEncoderSSI();
+
+    // 2. 제로 셋 시퀀스 처리
+    procEncoderZero();
+
+	EqeptoEncoder();
+
+    // 3. 통신 메시지 송신
+    sendIpcMessage1();
+}
+
+
+
+
+/*
+@funtion	static void cycle_100ms(void)
+@brief		100ms 마다 수행 하는 동작 
+@param		void
+@return		static void
+@remark	
+	-	
+*/
+static void cycle_100ms(void)
+{
+	updateHwSwitchStatus2();
+
+    // 시스템 상태 LED 처리 (IsValid 에 따라 Orange LED 제어)
+    updateOrangeLed();
+	updateSetRstGpioLed();
+    updateLedStatus();
+	
+    updateAdcData();
+}
+
+
+
+
+/*
+@funtion	static void cycle_1000ms(void)
+@brief		1000ms 마다 수행 하는 동작 
+@param		void
+@return		static void
+@remark	
+	-	
+*/
+static void cycle_1000ms(void)
+{
+
+
+}
+

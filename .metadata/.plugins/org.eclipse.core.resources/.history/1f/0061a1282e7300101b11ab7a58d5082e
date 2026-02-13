@@ -1,0 +1,193 @@
+/**********************************************************************
+
+	Nexcom Co., Ltd.
+	Copyright 2021. All Rights Reserved.
+
+	Filename		: CSU_Switch.c
+	Version		: 00.10
+	Description	: 
+	Tracebility	: 
+	Programmer	: 
+	Last Updated	: 2025. 08. 05.
+
+	Function List	:	
+						
+
+**********************************************************************/
+
+/*
+ * Modification History
+ * --------------------
+ * 
+ * 
+*/
+
+
+/* DESCRIPTION
+ * 
+ * 
+*/
+
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include "CSU_Switch.h"
+
+
+
+/* ************************** [[   define   ]]  *********************************************************** */
+#define CNT_CHATTERING_SWITCH	5u
+
+
+
+/* ************************** [[   global   ]]  *********************************************************** */
+stSwitch xSwitch;
+
+
+
+/* ************************** [[  static prototype  ]]  *************************************************** */
+static void ChatterSwitch(void);
+
+
+
+/* ************************** [[  function  ]]  *********************************************************** */
+/*
+@funtion	void probeSwitchStatus(void)
+@brief		
+@param		void
+@return		void
+@remark	
+	-	
+*/
+void probeSwitchStatus(void)
+{
+	xSwitch.pwrWarnLamp.Read	= GpioDataRegs.GPADAT.bit.GPIO31;
+	xSwitch.opRemote.Read		= GpioDataRegs.GPBDAT.bit.GPIO32;
+	xSwitch.opLocal.Read		= GpioDataRegs.GPBDAT.bit.GPIO33;
+	xSwitch.opElevation.Read	= GpioDataRegs.GPBDAT.bit.GPIO34;
+	xSwitch.opAzimuth.Read		= GpioDataRegs.GPBDAT.bit.GPIO35;
+	xSwitch.setStart.Read		= GpioDataRegs.GPBDAT.bit.GPIO36;
+	xSwitch.setStop.Read		= GpioDataRegs.GPBDAT.bit.GPIO37;
+	xSwitch.saUp.Read			= GpioDataRegs.GPBDAT.bit.GPIO38;
+	xSwitch.saLeft.Read			= GpioDataRegs.GPBDAT.bit.GPIO39;
+	xSwitch.saCenter.Read		= GpioDataRegs.GPBDAT.bit.GPIO40;
+	xSwitch.saRight.Read		= GpioDataRegs.GPBDAT.bit.GPIO41;
+	xSwitch.saDown.Read			= GpioDataRegs.GPBDAT.bit.GPIO42;
+	xSwitch.stsStatusCheck.Read	= GpioDataRegs.GPBDAT.bit.GPIO43;
+	xSwitch.stsLampTest.Read	= GpioDataRegs.GPBDAT.bit.GPIO44;
+	xSwitch.EmergencyStop.Read	= GpioDataRegs.GPBDAT.bit.GPIO45;
+
+	ChatterSwitch();
+}
+
+
+/*
+@funtion	void initGpioDinSwitch(void)
+@brief		
+@param		void
+@return		void
+@remark	
+	-	
+*/
+void initGpioDinSwitch(void)
+{
+	// WARN LAMP
+	GPIO_setPinConfig(GPIO_31_GPIO31);
+	GPIO_setDirectionMode(31u, GPIO_DIR_MODE_IN);
+
+	// REMOTE
+	GPIO_setPinConfig(GPIO_32_GPIO32);
+	GPIO_setDirectionMode(32u, GPIO_DIR_MODE_IN);
+
+	// LOCAL
+	GPIO_setPinConfig(GPIO_33_GPIO33);
+	GPIO_setDirectionMode(33u, GPIO_DIR_MODE_IN);
+
+	// ELEVATION
+	GPIO_setPinConfig(GPIO_34_GPIO34);
+	GPIO_setDirectionMode(34u, GPIO_DIR_MODE_IN);
+
+	// AZIMUTH
+	GPIO_setPinConfig(GPIO_35_GPIO35);
+	GPIO_setDirectionMode(35u, GPIO_DIR_MODE_IN);
+
+	// OPERATION START
+	GPIO_setPinConfig(GPIO_36_GPIO36);
+	GPIO_setDirectionMode(36u, GPIO_DIR_MODE_IN);
+
+	// OPERATION STOP
+	GPIO_setPinConfig(GPIO_37_GPIO37);
+	GPIO_setDirectionMode(37u, GPIO_DIR_MODE_IN);
+
+	// SETUP ANGLE UP
+	GPIO_setPinConfig(GPIO_38_GPIO38);
+	GPIO_setDirectionMode(38u, GPIO_DIR_MODE_IN);
+
+	// SETUP ANGLE LEFT
+	GPIO_setPinConfig(GPIO_39_GPIO39);
+	GPIO_setDirectionMode(39u, GPIO_DIR_MODE_IN);
+
+	// SETUP ANGLE CENTER
+	GPIO_setPinConfig(GPIO_40_GPIO40);
+	GPIO_setDirectionMode(40u, GPIO_DIR_MODE_IN);
+
+	// SETUP ANGLE RIGHT
+	GPIO_setPinConfig(GPIO_41_GPIO41);
+	GPIO_setDirectionMode(41u, GPIO_DIR_MODE_IN);
+
+	// SETUP ANGLE DOWN
+	GPIO_setPinConfig(GPIO_42_GPIO42);
+	GPIO_setDirectionMode(42u, GPIO_DIR_MODE_IN);
+
+	// STATUS STATUS CHECK
+	GPIO_setPinConfig(GPIO_43_GPIO43);
+	GPIO_setDirectionMode(43u, GPIO_DIR_MODE_IN);
+
+	// STATUS LAMP TEST
+	GPIO_setPinConfig(GPIO_44_GPIO44);
+	GPIO_setDirectionMode(44u, GPIO_DIR_MODE_IN);
+
+	// EMERGENCY STOP
+	GPIO_setPinConfig(GPIO_45_GPIO45);
+	GPIO_setDirectionMode(45u, GPIO_DIR_MODE_IN);
+}
+
+
+
+
+/*
+@funtion	static void ChatterSwitch(void)
+@brief		
+@param		void
+@return		static void
+@remark	
+	-	
+*/
+static void ChatterSwitch(void)
+{
+	Uint16 i = 0u;
+
+	mSwitch *pSwitch = &xSwitch.pwrWarnLamp;
+
+	for(i = 0u; i < 15u; i ++)
+	{
+		if(pSwitch->State != pSwitch->Read)
+		{
+			if(pSwitch->Chatter >= CNT_CHATTERING_SWITCH)
+			{
+				pSwitch->State = pSwitch->Read;
+			}
+			else
+			{
+				pSwitch->Chatter ++;
+			}
+		}
+		else
+		{
+			pSwitch->Chatter = 0u;
+		}
+
+		pSwitch++;
+	}
+}
+
+

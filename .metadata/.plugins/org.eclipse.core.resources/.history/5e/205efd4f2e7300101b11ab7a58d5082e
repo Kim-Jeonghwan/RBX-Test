@@ -1,0 +1,588 @@
+/**********************************************************************
+
+	Nexcom Co., Ltd.
+	Copyright 2021. All Rights Reserved.
+
+	Filename		: DevSci.c
+	Version			: 00.01
+	Description		: 
+	Tracebility		: 
+	Programmer	: 
+	Last Updated	: 2025. 08. 04.
+
+	Function List	:	
+						
+
+**********************************************************************/
+
+/*
+ * Modification History
+ * --------------------
+ * 
+ * 
+*/
+
+
+/* DESCRIPTION
+ * 
+ * 
+*/
+
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include "DevSci.h"
+
+/* ************************** [[   define   ]]  *********************************************************** */
+#define DCE_GPIO_PIN_SCIB_RXD     87u             // GPIO number for SCI RX
+#define DCE_GPIO_PIN_SCIB_TXD     86u             // GPIO number for SCI TX
+#define DCE_GPIO_CFG_SCIB_RXD     GPIO_87_SCIB_RX	// "pinConfig" for SCI RX
+#define DCE_GPIO_CFG_SCIB_TXD     GPIO_86_SCIB_TX	// "pinConfig" for SCI TX
+
+#define INCL_GPIO_PIN_SCIC_RXD     57u             // GPIO number for SCI RX
+#define INCL_GPIO_PIN_SCIC_TXD     56u             // GPIO number for SCI TX
+#define INCL_GPIO_CFG_SCIC_RXD     GPIO_57_SCIC_RX	// "pinConfig" for SCI RX
+#define INCL_GPIO_CFG_SCIC_TXD     GPIO_56_SCIC_TX	// "pinConfig" for SCI TX
+
+
+/* ************************** [[   global   ]]  *********************************************************** */
+static stSciB	xRcvDCE;
+static stQsci	xQueDCE;
+
+static stSciC	xRcvINCL;
+static stQsci	xQueINCL;
+
+
+/* ************************** [[  static prototype  ]]  *************************************************** */
+static void initScib_DCE(void);
+
+static void initScic_INCL(void);
+
+static void enqueueSci(stQsci *pstQ, Uint16 Data);
+
+static Uint16 dequeueSci(stQsci *pstQ, Uint16 *pData);
+
+
+/* ************************** [[  function  ]]  *********************************************************** */
+/*
+@funtion	void Initial_SCI(void)
+@brief		
+@param		void
+@return		void
+@remark	
+	-	
+*/
+void Initial_SCI(void)
+{
+	initScib_DCE();
+
+	initScic_INCL();
+
+	memset(&xRcvDCE, 0u, sizeof(xRcvDCE));
+	memset(&xQueDCE, 0u, sizeof(xQueDCE));
+	memset(&xRcvINCL, 0u, sizeof(xRcvINCL));
+	memset(&xQueINCL, 0u, sizeof(xQueINCL));
+}
+
+
+/*
+@funtion	static void initScib_DCE(void)
+@brief		
+@param		void
+@return		static void
+@remark	
+	-	
+*/
+static void initScib_DCE(void)
+{
+	//
+	// Initialize the Device Peripherals:
+	//
+
+	//
+	// GPIO55 is the SCI Rx pin.
+	//
+	GPIO_setControllerCore(DCE_GPIO_PIN_SCIB_RXD, GPIO_CORE_CPU1);
+	GPIO_setPinConfig(DCE_GPIO_CFG_SCIB_RXD);
+	GPIO_setDirectionMode(DCE_GPIO_PIN_SCIB_RXD, GPIO_DIR_MODE_IN);
+	GPIO_setPadConfig(DCE_GPIO_PIN_SCIB_RXD, GPIO_PIN_TYPE_STD);
+	GPIO_setQualificationMode(DCE_GPIO_PIN_SCIB_RXD, GPIO_QUAL_ASYNC);
+
+	//
+	// GPIO54 is the SCI Tx pin.
+	//
+	GPIO_setControllerCore(DCE_GPIO_PIN_SCIB_TXD, GPIO_CORE_CPU1);
+	GPIO_setPinConfig(DCE_GPIO_CFG_SCIB_TXD);
+	GPIO_setDirectionMode(DCE_GPIO_PIN_SCIB_TXD, GPIO_DIR_MODE_OUT);
+	GPIO_setPadConfig(DCE_GPIO_PIN_SCIB_TXD, GPIO_PIN_TYPE_STD);
+	GPIO_setQualificationMode(DCE_GPIO_PIN_SCIB_TXD, GPIO_QUAL_ASYNC);
+
+
+	//
+	// Interrupts that are used in this example are re-mapped to
+	// ISR functions found within this file.
+	//
+	Interrupt_register(INT_SCIB_RX, isrScib_DCE);
+
+	Interrupt_enable(INT_SCIB_RX);
+	
+	Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP9);
+
+
+    //
+    // 8 char bits, 1 stop bit, no parity. Baud rate is 115200.
+    //
+    SCI_setConfig(SCIB_BASE, DEVICE_LSPCLK_FREQ, 115200u, (SCI_CONFIG_WLEN_8 |
+                                                        SCI_CONFIG_STOP_ONE |
+                                                        SCI_CONFIG_PAR_NONE));
+    SCI_enableModule(SCIB_BASE);
+    SCI_resetChannels(SCIB_BASE);
+    SCI_enableFIFO(SCIB_BASE);
+
+    //
+    // RX and TX FIFO Interrupts Enabled
+    //
+    //SCI_enableInterrupt(SCIA_BASE, (SCI_INT_RXFF | SCI_INT_TXFF));
+    SCI_enableInterrupt(SCIB_BASE, SCI_INT_RXFF);
+    SCI_disableInterrupt(SCIB_BASE, SCI_INT_RXERR);
+
+    //
+    // The transmit FIFO generates an interrupt when FIFO status
+    // bits are less than or equal to 2 out of 16 words
+    // The receive FIFO generates an interrupt when FIFO status
+    // bits are greater than equal to 2 out of 16 words
+    //
+    SCI_setFIFOInterruptLevel(SCIB_BASE, SCI_FIFO_TX1, SCI_FIFO_RX1);
+    SCI_performSoftwareReset(SCIB_BASE);
+
+    SCI_resetTxFIFO(SCIB_BASE);
+    SCI_resetRxFIFO(SCIB_BASE);
+
+}
+
+
+
+
+/*
+@funtion	static interrupt void isrScib_DCE(void)
+@brief		
+@param		void
+@return		[ static interrupt void ]	
+@remark	
+	-	
+*/
+__interrupt void isrScib_DCE(void)
+{
+    Uint16 Data[1u];
+
+    SCI_readCharArray(SCIB_BASE, Data, 1u);
+
+  	switch(xRcvDCE.Frame)
+  	{
+  	case eSciB_SOF:
+  		if(Data[0u] == 0x7Eu)
+  		{
+  			xRcvDCE.Frame	= eSciB_MSGID;
+  			xRcvDCE.POS	= 0u;
+  			xRcvDCE.CRC	= 0u;
+  		}
+  	break;
+
+  	case eSciB_MSGID:
+		xRcvDCE.Frame	= eSciB_LEN;
+		xRcvDCE.MSGID	= Data[0u];
+  	break;
+
+  	case eSciB_LEN:
+		xRcvDCE.Frame	= eSciB_DATA;
+		xRcvDCE.LEN	= Data[0u];
+		xRcvDCE.CRC	+= Data[0u];
+  	break;
+
+  	case eSciB_DATA:
+		xRcvDCE.DATA[xRcvDCE.POS++] = Data[0u];
+		xRcvDCE.CRC += Data[0u];
+		xRcvDCE.LEN--;
+
+		if(xRcvDCE.LEN == 0u)
+		{
+			xRcvDCE.Frame	= eSciB_CRC;
+		}
+  	break;
+
+  	case eSciB_CRC:
+  		if((xRcvDCE.CRC & 0xFFu) == Data[0u])
+  		{
+			xRcvDCE.Frame	= eSciB_EOT;
+		}
+		else
+		{
+			xRcvDCE.Frame	= eSciB_SOF;
+		}
+  	break;  	
+
+  	case eSciB_EOT:
+		xRcvDCE.Frame	= eSciB_SOF;
+
+		recvDceMessage(xRcvDCE.MSGID, xRcvDCE.DATA);
+  	break;  	
+  	
+  	default:
+  		// MISRA
+  	break;
+  	}
+
+    SCI_clearOverflowStatus(SCIB_BASE);
+
+    SCI_clearInterruptStatus(SCIB_BASE, SCI_INT_RXFF);
+
+    //
+    // Issue PIE ack
+    //
+    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP9);
+
+}
+
+
+
+
+/*
+@funtion	void xmtScib_DCE(Uint16 data[], Uint16 len)
+@brief		
+@param		[ Uint16 data[] ]	
+@param		[ Uint16 len ]	
+@return		void
+@remark	
+	-	
+*/
+void xmtScib_DCE(Uint16 data[], Uint16 len)
+{
+#if 1 // 2025-08-05 9:13:57
+	Uint16 i = 0u;
+
+	for(i = 0u; i < len; i++)
+	{
+		enqueueSci(&xQueDCE, data[i]);
+	}
+#else
+	SCI_writeCharArray(SCIB_BASE, data, len);
+#endif // #if 0 // 2025-08-05 9:13:57
+}
+
+
+
+/*
+@funtion	void sendScib_DCE(void)
+@brief		100 us 주기로 전송 
+@param		void
+@return		void
+@remark	
+	-	ref isr_CpuTimer0()
+*/
+void sendScib_DCE(void)
+{
+    Uint16 i = 0u;
+    Uint16 len = 0u;
+    Uint16 popData = 0u;
+    Uint16 sendData[10u] = {0u};
+
+    for(i = 0u; i < 10u; i++)
+    {
+        if(dequeueSci(&xQueDCE, &popData) == 1u)
+        {
+            sendData[len ++] = popData;
+        }
+    }
+
+    if(len > 0u)
+    {
+        SCI_writeCharArray(SCIB_BASE, sendData, len);
+    }
+}
+
+
+
+
+
+
+
+/*
+@funtion	static void initScic_INCL(void)
+@brief		
+@param		void
+@return		static void
+@remark	
+	-	
+*/
+static void initScic_INCL(void)
+{
+	//
+	// Initialize the Device Peripherals:
+	//
+
+	//
+	// GPIO57 is the SCI Rx pin.
+	//
+	GPIO_setControllerCore(INCL_GPIO_PIN_SCIC_RXD, GPIO_CORE_CPU1);
+	GPIO_setPinConfig(DCE_GPIO_CFG_SCIB_RXD);
+	GPIO_setDirectionMode(INCL_GPIO_PIN_SCIC_RXD, GPIO_DIR_MODE_IN);
+	GPIO_setPadConfig(INCL_GPIO_PIN_SCIC_RXD, GPIO_PIN_TYPE_STD);
+	GPIO_setQualificationMode(INCL_GPIO_PIN_SCIC_RXD, GPIO_QUAL_ASYNC);
+
+	//
+	// GPIO56 is the SCI Tx pin.
+	//
+	GPIO_setControllerCore(INCL_GPIO_PIN_SCIC_TXD, GPIO_CORE_CPU1);
+	GPIO_setPinConfig(DCE_GPIO_CFG_SCIB_TXD);
+	GPIO_setDirectionMode(INCL_GPIO_PIN_SCIC_TXD, GPIO_DIR_MODE_OUT);
+	GPIO_setPadConfig(INCL_GPIO_PIN_SCIC_TXD, GPIO_PIN_TYPE_STD);
+	GPIO_setQualificationMode(INCL_GPIO_PIN_SCIC_TXD, GPIO_QUAL_ASYNC);
+
+
+	//
+	// Interrupts that are used in this example are re-mapped to
+	// ISR functions found within this file.
+	//
+	Interrupt_register(INT_SCIC_RX, isrScic_INCL);
+
+	Interrupt_enable(INT_SCIC_RX);
+	
+	Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP8);
+
+
+    //
+    // 8 char bits, 1 stop bit, no parity. Baud rate is 115200.
+    //
+    SCI_setConfig(SCIC_BASE, DEVICE_LSPCLK_FREQ, 115200u, (SCI_CONFIG_WLEN_8 |
+                                                        SCI_CONFIG_STOP_ONE |
+                                                        SCI_CONFIG_PAR_NONE));
+    SCI_enableModule(SCIC_BASE);
+    SCI_resetChannels(SCIC_BASE);
+    SCI_enableFIFO(SCIC_BASE);
+
+    //
+    // RX and TX FIFO Interrupts Enabled
+    //
+    //SCI_enableInterrupt(SCIA_BASE, (SCI_INT_RXFF | SCI_INT_TXFF));
+    SCI_enableInterrupt(SCIC_BASE, SCI_INT_RXFF);
+    SCI_disableInterrupt(SCIC_BASE, SCI_INT_RXERR);
+
+    //
+    // The transmit FIFO generates an interrupt when FIFO status
+    // bits are less than or equal to 2 out of 16 words
+    // The receive FIFO generates an interrupt when FIFO status
+    // bits are greater than equal to 2 out of 16 words
+    //
+    SCI_setFIFOInterruptLevel(SCIC_BASE, SCI_FIFO_TX1, SCI_FIFO_RX1);
+    SCI_performSoftwareReset(SCIC_BASE);
+
+    SCI_resetTxFIFO(SCIC_BASE);
+    SCI_resetRxFIFO(SCIC_BASE);
+
+}
+
+
+
+
+/*
+@funtion	static interrupt void isrScic_INCL(void)
+@brief		
+@param		void
+@return		[ static interrupt void ]	
+@remark	
+	-	
+*/
+__interrupt void isrScic_INCL(void)
+{
+    Uint16 Data[1u];
+
+    SCI_readCharArray(SCIC_BASE, Data, 1u);
+
+  	switch(xRcvINCL.Frame)
+  	{
+  	case eSciC_SOF:
+  		if(Data[0u] == 0x7Eu)
+  		{
+  			xRcvINCL.Frame	= eSciC_MSGID;
+  			xRcvINCL.POS	= 0u;
+  			xRcvINCL.CRC	= 0u;
+  		}
+  	break;
+
+  	case eSciC_MSGID:
+		xRcvINCL.Frame	= eSciC_LEN;
+		xRcvINCL.MSGID	= Data[0u];
+  	break;
+
+  	case eSciC_LEN:
+		xRcvINCL.Frame	= eSciC_DATA;
+		xRcvINCL.LEN	= Data[0u];
+		xRcvINCL.CRC	+= Data[0u];
+  	break;
+
+  	case eSciC_DATA:
+		xRcvINCL.DATA[xRcvINCL.POS++] = Data[0u];
+		xRcvINCL.CRC += Data[0u];
+		xRcvINCL.LEN--;
+
+		if(xRcvINCL.LEN == 0u)
+		{
+			xRcvINCL.Frame	= eSciC_CRC;
+		}
+  	break;
+
+  	case eSciC_CRC:
+  		if((xRcvINCL.CRC & 0xFFu) == Data[0u])
+  		{
+			xRcvINCL.Frame	= eSciC_EOT;
+		}
+		else
+		{
+			xRcvINCL.Frame	= eSciC_SOF;
+		}
+  	break;  	
+
+  	case eSciC_EOT:
+		xRcvINCL.Frame	= eSciC_SOF;
+
+		//rcvSciaPacket(xRcvINCL.MSGID, xRcvINCL.DATA);
+  	break;  	
+  	
+  	default:
+  		// MISRA
+  	break;
+  	}
+
+    SCI_clearOverflowStatus(SCIC_BASE);
+
+    SCI_clearInterruptStatus(SCIC_BASE, SCI_INT_RXFF);
+
+    //
+    // Issue PIE ack
+    //
+    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP8);
+
+}
+
+
+
+
+/*
+@funtion	void xmtScic_INCL(Uint16 data[], Uint16 len)
+@brief		
+@param		[ Uint16 data[] ]	
+@param		[ Uint16 len ]	
+@return		void
+@remark	
+	-	
+*/
+void xmtScic_INCL(Uint16 data[], Uint16 len)
+{
+#if 1 // 2025-08-05 9:13:57
+	Uint16 i = 0u;
+
+	for(i = 0u; i < len; i++)
+	{
+		enqueueSci(&xQueINCL, data[i]);
+	}
+#else
+	SCI_writeCharArray(SCIB_BASE, data, len);
+#endif // #if 0 // 2025-08-05 9:13:57
+}
+
+
+
+/*
+@funtion	void sendScic_INCL(void)
+@brief		100 us 주기로 전송 
+@param		void
+@return		void
+@remark	
+	-	ref isr_CpuTimer0()
+*/
+void sendScic_INCL(void)
+{
+    Uint16 i = 0u;
+    Uint16 len = 0u;
+    Uint16 popData = 0u;
+    Uint16 sendData[10u] = {0u};
+
+    for(i = 0u; i < 10u; i++)
+    {
+        if(dequeueSci(&xQueINCL, &popData) == 1u)
+        {
+            sendData[len ++] = popData;
+        }
+    }
+
+    if(len > 0u)
+    {
+        SCI_writeCharArray(SCIC_BASE, sendData, len);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+/*
+@funtion	static void enqueueSci(stQsci *pstQ, Uint16 Data)
+@brief		
+@param		[ stQsci *pstQ ]	
+@param		[ Uint16 Data ]	
+@return		static void
+@remark	
+	-	
+*/
+static void enqueueSci(stQsci *pstQ, Uint16 Data)
+{
+    Uint16 nRear = 0u;
+
+    if(pstQ->rear <= QUEUE_MAX_SCI)
+    {
+        nRear = ((pstQ->rear + 1u) % QUEUE_MAX_SCI);
+    }
+
+    if(nRear != pstQ->front)
+    {
+        pstQ->Data[pstQ->rear]  = Data;
+        pstQ->rear           	= nRear;
+    }
+}
+
+
+
+
+/*
+@funtion	static Uint16 dequeueSci(stQsci *pstQ, Uint16 *pData)
+@brief		
+@param		[ stQsci *pstQ ]	
+@param		[ Uint16 *pData ]	
+@return		[ static Uint16 ]	
+@remark	
+	-	
+*/
+static Uint16 dequeueSci(stQsci *pstQ, Uint16 *pData)
+{
+    Uint16 result = 0u;
+
+    if(pstQ->front != pstQ->rear)
+    {
+        *pData = pstQ->Data[pstQ->front];
+
+        if(pstQ->front <= QUEUE_MAX_SCI)
+        {
+            pstQ->front = (pstQ->front + 1u) % QUEUE_MAX_SCI;
+        }
+
+        result = 1u;
+    }
+
+    return result;
+}
+
+

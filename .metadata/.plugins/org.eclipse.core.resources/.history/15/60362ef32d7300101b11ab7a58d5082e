@@ -1,0 +1,96 @@
+/**********************************************************************
+
+	Nexcom Co., Ltd.
+	Copyright 2021. All Rights Reserved.
+
+	Filename		: CSU_DCE_Scib.h
+	Version		: 00.10
+	Description	: 
+	Tracebility	: 
+	Programmer	: 
+	Last Updated	: 2025. 08. 04.
+
+	Function List	: 
+					
+
+**********************************************************************/
+
+/*
+ * Modification History
+ * --------------------
+ * 
+ * 
+*/
+
+
+/* DESCRIPTION
+ * 
+ * 
+*/
+
+
+#ifndef CSU_DCE_SCIB_H
+#define CSU_DCE_SCIB_H
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include "main.h"
+
+
+/* ************************** [[   define   ]]  *********************************************************** */
+
+
+
+/* ************************** [[   enum or struct   ]]  *************************************************** */
+typedef struct
+{
+    Uint16 Led1:1u;         // LED 1
+    Uint16 Led2:1u;         // LED 2
+    Uint16 Led3:1u;         // LED 3
+    Uint16 Led4:1u;         // LED 4
+    Uint16 Led5:1u;         // LED 5
+    Uint16 Led6:1u;         // LED 6
+    Uint16 Led7:1u;         // LED 7
+    Uint16 Led8:1u;         // LED 8
+    Uint16 reserved:8u;     //
+} BitLed;
+
+
+typedef struct
+{
+    Uint16          IncNumber;      // Sequence Number - 전송시 1 증가
+    float32         Reserved1;      //
+    float32         Reserved2;      //
+    float32         Reserved3;      //
+    BitLed          LedCmd;         // Command return
+} stRcvDceMsg1;
+
+
+typedef struct
+{
+    Uint16          IncNumber:8u;   // Sequence Number - 전송시 1 증가
+    Uint16          Reserved0:8u;   // Message Length
+    Uint16          Reserved1;      // Reserved 2 BYTE
+    Uint16          Reserved2;      // Reserved 2 BYTE
+    float32         Sine;           // 사인파
+    float32         Square;         // 구형파
+    float32         Cosine;         // 펄스
+    BitLed          LedCmdRtn;      // Command return
+    BitLed          LedStatus;      // LED 상태
+} stXmtDceMsg1;
+
+
+
+/* ************************** [[   global   ]]  *********************************************************** */
+extern stRcvDceMsg1 xRcvDceMsg1;
+
+extern stXmtDceMsg1	xXmtDceMsg1;
+
+
+
+/* ************************** [[  function  ]]  *********************************************************** */
+void recvDceMessage(Uint16 ID, Uint16 Data[]);
+
+void sendDceMessage1(void);
+
+#endif	// #ifndef CSU_DCE_SCIB_H
+

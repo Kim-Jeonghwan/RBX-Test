@@ -1,0 +1,92 @@
+/**********************************************************************
+
+	Nexcom Co., Ltd.
+	Copyright 2021. All Rights Reserved.
+
+	Filename		: CSU_LED.c
+	Version			: 00.01
+	Description		: 
+	Tracebility		: 
+	Programmer	: 
+	Last Updated	: 2025. 08. 05.
+
+	Function List	:	
+						
+
+**********************************************************************/
+
+/*
+ * Modification History
+ * --------------------
+ * 
+ * 
+*/
+
+
+/* DESCRIPTION
+ * 
+ * 
+*/
+
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include "CSU_LED.h"
+
+/* ************************** [[   define   ]]  *********************************************************** */
+
+
+/* ************************** [[   global   ]]  *********************************************************** */
+extern stLedStatus xLed;
+
+/* ************************** [[  function  ]]  *********************************************************** */
+void initLedRegister(void)
+{
+	xLed.POWER.Green = eLED_1;
+	xLed.POWER.Red = eLED_5;
+}
+
+void SetLedState(stLed *pLed, Uint16 Color, Uint16 State)
+{
+	if((pLed->Color != Color)
+		|| (pLed->Status != State))
+	{
+		if(Color == 0u)
+		{
+			SetLedColor(pLed->Green, State);
+			SetLedColor(pLed->Red, 0u);
+		}
+		else if(Color == 1u)
+		{
+			SetLedColor(pLed->Green, 0u);
+			SetLedColor(pLed->Red, State);
+		}
+		else
+		{
+			// MISRA
+		}
+
+		pLed->Color = Color;
+		pLed->Status = State;
+	}
+}
+
+void SetLedColor(Uint16 Index, Uint16 State)
+{
+	switch(Index)
+	{
+	case eLED_1:
+		GpioDataRegs.GPBDAT.bit.GPIO32 = State;
+	break;
+
+	case eLED_5:
+		GpioDataRegs.GPBDAT.bit.GPIO35 = State;
+	break;
+	
+	default:
+		// MISRA
+	break;
+	}
+}
+
+
+

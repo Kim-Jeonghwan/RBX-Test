@@ -1,0 +1,57 @@
+/*
+* @file		main.h
+* @brief	
+*
+* @date 	2024-07-04 
+* @version	1.0
+*
+*/
+#ifndef MAIN_H
+#define MAIN_H
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include <string.h>
+#include <math.h>
+
+#include "f28x_project.h"			// TI 제공 칩-지원 헤더 통합 Include 용 헤더파일 (bit-field)
+#include "driverlib.h"				// TI 제공 Driver API Library 헤더파일 (driverlib)
+#include "device.h"
+
+#include "DevDspInit.h"
+#include "Devommon.h"
+#include "DevSci.h"
+#include "DevTimer.h"
+
+
+#include "CSU_LED.h"
+#include "CSU_DCE_Scib.h"
+#include "CSU_INCL_Scic.h"
+
+/* ************************** [[   define   ]]  *********************************************************** */
+
+
+/* ************************** [[   struct   ]]  *********************************************************** */
+
+
+/* ************************** [[   global   ]]  *********************************************************** */
+
+
+/* ************************** [[  function  ]]  *********************************************************** */
+
+// DSP program entry point
+void main(void);
+
+// Cycle 1ms(1000Hz)
+static void cycle_1ms(void);
+
+// 10ms(100Hz)
+static void cycle_10ms(void);
+
+// 100ms(10Hz)
+static void cycle_100ms(void);
+
+// 1000ms(1Hz)
+static void cycle_1000ms(void);
+
+#endif	// #ifndef MAIN_H
+

@@ -1,0 +1,163 @@
+/**********************************************************************
+
+	Nexcom Co., Ltd.
+	Copyright 2021. All Rights Reserved.
+
+	Filename		: CSU_LED.h
+	Version		: 00.10
+	Description	: 
+	Tracebility	: 
+	Programmer	: 
+	Last Updated	: 2025. 08. 07.
+
+	Function List	: 
+					
+
+**********************************************************************/
+
+/*
+ * Modification History
+ * --------------------
+ * 
+ * 
+*/
+
+
+/* DESCRIPTION
+ * 
+ * 
+*/
+
+
+#ifndef CSU_LED_H
+#define CSU_LED_H
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include "main.h"
+
+
+
+/* ************************** [[   define   ]]  *********************************************************** */
+#define LED_OFF		0u
+#define LED_ON		1u
+
+#define LED_GREEN	0u
+#define LED_RED		1u
+
+#define LED_NONE	0u
+#define LED_TOGGLE	1u
+
+
+
+/* ************************** [[   enum or struct   ]]  **************************************************** */
+typedef enum
+{
+	eLED_POWER_MAIN_G 			= 3u,
+	eLED_POWER_MAIN_R 			= 68u,
+	eLED_POWER_DRIVING_G		= 4u,
+	eLED_POWER_DRIVING_R		= 69u,
+	eLED_POWER_WARN_LAMP_G		= 5u,
+	eLED_POWER_WARN_LAMP_R		= 70u,
+	eLED_REMOTE_G				= 6u,
+	eLED_REMOTE_R				= 71u,
+	eLED_LOCAL_G				= 7u,
+	eLED_LOCAL_R				= 73u,
+	eLED_ELEVATION_G			= 8u,
+	eLED_ELEVATION_R			= 74u,
+	eLED_AZIMUTH_G 				= 9u,
+	eLED_AZIMUTH_R 				= 75u,
+	eLED_STATUS_COMM_G 			= 13u,
+	eLED_STATUS_COMM_R 			= 78u,
+	eLED_STATUS_CB_G 			= 14u,
+	eLED_STATUS_CB_R 			= 79u,
+	eLED_STATUS_INCL_G 			= 15u,
+	eLED_STATUS_INCL_R 			= 80u,
+	eLED_STATUS_DRIVING_POWER_G = 16u,
+	eLED_STATUS_DRIVING_POWER_R = 81u,
+	eLED_STATUS_EL_MOTOR_G 		= 17u,
+	eLED_STATUS_EL_MOTOR_R 		= 82u,
+	eLED_STATUS_AZ_MOTOR_G 		= 18u,
+	eLED_STATUS_AZ_MOTOR_R 		= 83u,
+	eLED_STATUS_EL_SENSOR_G 	= 19u,
+	eLED_STATUS_EL_SENSOR_R 	= 85u,
+	eLED_STATUS_AZ_SENSOR_G 	= 20u,
+	eLED_STATUS_AZ_SENSOR_R 	= 86u,
+	eLED_STATUS_EL_BRAKE_G 		= 21u,
+	eLED_STATUS_EL_BRAKE_R 		= 87u,
+	eLED_STATUS_AZ_BRAKE_G 		= 22u,
+	eLED_STATUS_AZ_BRAKE_R 		= 88u,
+	eLED_STATUS_EL_LIMIT_G 		= 23u,
+	eLED_STATUS_EL_LIMIT_R 		= 89u,
+	eLED_STATUS_ML_LIMIT_G 		= 24u,
+	eLED_STATUS_ML_LIMIT_R 		= 91u,
+	eLED_STATUS_ANT_LOCK1_G 	= 34, //25u,
+	eLED_STATUS_ANT_LOCK1_R 	= 37, //92u,
+	eLED_STATUS_ANT_LOCK2_G 	= 26u,
+	eLED_STATUS_ANT_LOCK2_R 	= 93u,
+	eLED_SETUP_DRIVING_G 		= 10u,
+	eLED_SETUP_DRIVING_R 		= 76u,
+	eLED_SETUP_DONE_G 			= 11u,
+	eLED_SETUP_DONE_R 			= 77u,
+	eLED_GREEN					= 48u,
+	eLED_ORANGE					= 49u
+}eLed;
+
+typedef struct
+{
+    Uint16 IndexG:8u;	// GPIO index
+    Uint16 IndexR:8u;	// GPIO index
+    Uint16 Time:8u;		// toggle time
+    Uint16 Temp:8u;		// 
+    Uint16 State:1u;	// 0: Off, 1: On
+    Uint16 Color:1u;	// 0: Green, 1: Red
+    Uint16 Toggle:1u;   // 0: None, 1: Toggle
+    Uint16 Reserved:13u;
+} stLed;
+
+typedef struct
+{
+	stLed	pwrMain;
+	stLed	pwrDriving;
+	stLed	pwrWarnLamp;
+	stLed	opRemote;
+	stLed	opLocal;
+	stLed	opElevation;
+	stLed	opAzimuth;
+	stLed	stsComm;
+	stLed	stsCb;
+	stLed	stsIncl;
+	stLed	stsDrivingPower;
+	stLed	stsElMotor;
+	stLed	stsAzMotor;
+	stLed	stsElSensor;
+	stLed	stsAzSensor;
+	stLed	stsElBrake;
+	stLed	stsAzBrake;
+	stLed	stsElLimit;
+	stLed	stsMlLimit;
+	stLed	stsAntLock1;
+	stLed	stsAntLock2;
+	stLed	setDriving;
+	stLed	setDone;
+}stLedStatus;
+
+
+
+/* ************************** [[   global   ]]  *********************************************************** */
+extern stLedStatus xLed;
+
+
+
+/* ************************** [[  function  ]]  *********************************************************** */
+void Initial_LED(void);
+
+void initGpioDoutLed(void);
+
+void updateLedState(void);
+
+void setLedState(stLed *pLed, Uint16 Color, Uint16 State);
+
+void setLedToggle(stLed *pLed, Uint16 State, Uint16 Time);
+
+#endif	// #ifndef CSU_LED_H
+

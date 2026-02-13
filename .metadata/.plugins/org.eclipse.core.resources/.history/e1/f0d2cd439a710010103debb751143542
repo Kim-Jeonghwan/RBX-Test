@@ -1,0 +1,172 @@
+/**********************************************************************
+
+	Nexcom Co., Ltd.
+	Copyright 2021. All Rights Reserved.
+
+	Filename		: CUS_CommScib_DCE.c
+	Version			: 00.01
+	Description		: 
+	Tracebility		: 
+	Programmer	: 
+	Last Updated	: 2025. 08. 04.
+
+	Function List	:	
+						
+
+**********************************************************************/
+
+/*
+ * Modification History
+ * --------------------
+ * 
+ * 
+*/
+
+
+/* DESCRIPTION
+ * 
+ * 
+*/
+
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include "CUS_CommScib_DCE.h"
+
+/* ************************** [[   define   ]]  *********************************************************** */
+
+
+
+/* ************************** [[   global   ]]  *********************************************************** */
+stRcvDceMsg1	xRcvDceMsg1;
+stXmtDceMsg1	xXmtDceMsg1;
+
+
+
+
+/* ************************** [[  function  ]]  *********************************************************** */
+/*
+@funtion	void rcvPacketDCE(Uint16 ID, Uint16 Data[])
+@brief		
+@param		[ Uint16 ID ]	
+@param		[ Uint16 Data[] ]	
+@return		void
+@remark	
+	-	
+*/
+void rcvPacketDCE(Uint16 ID, Uint16 Data[])
+{
+	volatile Uint16 pos = 0u;
+
+	stConv4B conv4B;
+	Uint32 Conv32 = 0u;
+	Uint16 Conv16 = 0u;
+	
+
+	switch(ID)
+	{
+	case 0x10u:
+		xRcvDceMsg1.IncNumber = Data[pos++];
+
+		conv4B.B0 = Data[pos++];
+		conv4B.B1 = Data[pos++];
+		conv4B.B2 = Data[pos++];
+		conv4B.B3 = Data[pos++];
+		(void)memcpy(&xRcvDceMsg1.Reserved1, &conv4B, sizeof(conv4B));
+
+		conv4B.B0 = Data[pos++];
+		conv4B.B1 = Data[pos++];
+		conv4B.B2 = Data[pos++];
+		conv4B.B3 = Data[pos++];
+		(void)memcpy(&xRcvDceMsg1.Reserved2, &conv4B, sizeof(conv4B));
+
+		Conv32  = (Uint32)Data[pos++];
+		Conv32 |= ((Uint32)Data[pos++]) << 8u;
+		Conv32 |= ((Uint32)Data[pos++]) << 16u;
+		Conv32 |= ((Uint32)Data[pos++]) << 24u;
+		xRcvDceMsg1.Reserved3 = *((float32*)&Conv32);
+
+
+		GpioDataRegs.GPBCLEAR.all = 0x000000FF;
+		GpioDataRegs.GPBSET.all = Data[pos];
+		
+		Conv16	= Data[pos++];
+		Conv16 |= (Data[pos++]) << 8u;
+		(void)memcpy(&xRcvDceMsg1.LedCmd, &Conv16, sizeof(Conv16));
+	break;
+	
+	default:
+	break;
+	}
+}
+
+
+
+/*
+@funtion	void xmtPacketDCE(void)
+@brief		
+@param		void
+@return		void
+@remark	
+	-	Main.c 
+	-	10ms аж╠Б
+*/
+void xmtPacketDCE(void)
+{
+	Uint16 i = 0u;
+	volatile Uint16 pos = 0u;
+	Uint16 Buf[26u] = {0u, };
+	Uint32 Conv32 = 0u;
+	Uint16 Conv16 = 0u;
+	Uint16 CheckSum = 0u;
+
+	getLedStatus();
+
+	Buf[pos++] = xXmtDceMsg1.SOF;	// SOF
+	Buf[pos++] = xXmtDceMsg1.MsgID;	// Message ID
+	Buf[pos++] = xXmtDceMsg1.MsgLength;
+	
+	Buf[pos++] = xXmtDceMsg1.IncNumber++;
+	Buf[pos++] = xXmtDceMsg1.Reserved1 & 0xFFu;
+	Buf[pos++] = (xXmtDceMsg1.Reserved1 >> 8u) & 0xFF;
+	Buf[pos++] = xXmtDceMsg1.Reserved2 & 0xFFu;
+	Buf[pos++] = (xXmtDceMsg1.Reserved2 >> 8u) & 0xFF;
+
+	Conv32 = *((Uint32*)&xXmtDceMsg1.Sine);
+	Buf[pos++] = (Conv32) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 8u) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 16u) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 24u) & 0xFFu;
+	
+	Conv32 = *((Uint32*)&xXmtDceMsg1.Square);
+	Buf[pos++] = (Conv32) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 8u) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 16u) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 24u) & 0xFFu;
+
+	Conv32 = *((Uint32*)&xXmtDceMsg1.Cosine);
+	Buf[pos++] = (Conv32) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 8u) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 16u) & 0xFFu;
+	Buf[pos++] = (Conv32 >> 24u) & 0xFFu;
+
+	memcpy(&Conv16, &xRcvDceMsg1.LedCmd, sizeof(Uint16));
+	Buf[pos++] = Conv16 & 0xFFu;
+	Buf[pos++] = (Conv16 >> 8u) & 0xFFu;
+
+	memcpy(&Conv16, &xXmtDceMsg1.LedStatus, sizeof(Uint16));
+	Buf[pos++] = Conv16 & 0xFFu;
+	Buf[pos++] = (Conv16 >> 8u) & 0xFFu;
+
+	for(i = 0u; i < xXmtDceMsg1.MsgLength; i++)
+	{
+		CheckSum += Buf[i+3u];
+	}
+
+	Buf[pos++] = CheckSum & 0xFFu;
+	Buf[pos++] = xXmtDceMsg1.EOF;
+
+	xmtScib_DCE(Buf, sizeof(Buf));
+}
+
+
+

@@ -1,0 +1,344 @@
+/**********************************************************************
+
+	Nexcom Co., Ltd.
+	Copyright 2021. All Rights Reserved.
+
+	Filename		: CSU_LED.c
+	Version			: 00.01
+	Description		: 
+	Tracebility		: 
+	Programmer	: 
+	Last Updated	: 2025. 08. 05.
+
+	Function List	:	
+						
+
+**********************************************************************/
+
+/*
+ * Modification History
+ * --------------------
+ * 
+ * 
+*/
+
+
+/* DESCRIPTION
+ * 
+ * 
+*/
+
+
+/* ************************** [[   include  ]]  *********************************************************** */
+#include "CSU_LED.h"
+
+/* ************************** [[   define   ]]  *********************************************************** */
+
+
+/* ************************** [[   global   ]]  *********************************************************** */
+stLedStatus xLed;
+
+/* ************************** [[  function  ]]  *********************************************************** */
+
+/*
+@funtion	void initLedRegister(void)
+@brief		
+@param		void
+@return		void
+@remark	
+	-	
+*/
+void initLedRegister(void)
+{
+	xLed.pwrMain.Green 			= eLED_POWER_MAIN_G;
+	xLed.pwrMain.Red			= eLED_POWER_MAIN_R;
+	xLed.pwrDriving.Green 		= eLED_POWER_DRIVING_G;
+	xLed.pwrDriving.Red 		= eLED_POWER_DRIVING_R;
+	xLed.pwrWarnLamp.Green 		= eLED_POWER_WARN_LAMP_G;
+	xLed.pwrWarnLamp.Red 		= eLED_POWER_WARN_LAMP_R;
+	xLed.opRemote.Green 		= eLED_REMOTE_G;
+	xLed.opRemote.Red 			= eLED_REMOTE_R;
+	xLed.opLocal.Green 			= eLED_LOCAL_G;
+	xLed.opLocal.Red 			= eLED_LOCAL_R;
+	xLed.opElevation.Green 		= eLED_ELEVATION_G;
+	xLed.opElevation.Red 		= eLED_ELEVATION_R;
+	xLed.opAzimuth.Green 		= eLED_AZIMUTH_G;
+	xLed.opAzimuth.Red 			= eLED_AZIMUTH_R;
+	xLed.stsComm.Green 			= eLED_STATUS_COMM_G;
+	xLed.stsComm.Red 			= eLED_STATUS_COMM_R;
+	xLed.stsCb.Green 			= eLED_STATUS_CB_G;
+	xLed.stsCb.Red 				= eLED_STATUS_CB_R;
+	xLed.stsIncl.Green 			= eLED_STATUS_INCL_G;
+	xLed.stsIncl.Red 			= eLED_STATUS_INCL_R;
+	xLed.stsDrivingPower.Green 	= eLED_STATUS_DRIVING_POWER_G;
+	xLed.stsDrivingPower.Red 	= eLED_STATUS_DRIVING_POWER_R;
+	xLed.stsElMotor.Green 		= eLED_STATUS_EL_MOTOR_G;
+	xLed.stsElMotor.Red 		= eLED_STATUS_EL_MOTOR_R;
+	xLed.stsAzMotor.Green 		= eLED_STATUS_AZ_MOTOR_G;
+	xLed.stsAzMotor.Red 		= eLED_STATUS_AZ_MOTOR_R;
+	xLed.stsElSensor.Green 		= eLED_STATUS_EL_SENSOR_G;
+	xLed.stsElSensor.Red 		= eLED_STATUS_EL_SENSOR_R;
+	xLed.stsAzSensor.Green 		= eLED_STATUS_AZ_SENSOR_G;
+	xLed.stsAzSensor.Red 		= eLED_STATUS_AZ_SENSOR_R;
+	xLed.stsElBrake.Green 		= eLED_STATUS_EL_BRAKE_G;
+	xLed.stsElBrake.Red 		= eLED_STATUS_EL_BRAKE_R;
+	xLed.stsAzBrake.Green 		= eLED_STATUS_AZ_BRAKE_G;
+	xLed.stsAzBrake.Red 		= eLED_STATUS_AZ_BRAKE_R;
+	xLed.stsElLimit.Green 		= eLED_STATUS_EL_LIMIT_G;
+	xLed.stsElLimit.Red 		= eLED_STATUS_EL_LIMIT_R;
+	xLed.stsMlLimit.Green 		= eLED_STATUS_ML_LIMIT_G;
+	xLed.stsMlLimit.Red 		= eLED_STATUS_ML_LIMIT_R;
+	xLed.stsAntLock1.Green 		= eLED_STATUS_ANT_LOCK1_G;
+	xLed.stsAntLock1.Red 		= eLED_STATUS_ANT_LOCK1_R;
+	xLed.stsAntLock2.Green 		= eLED_STATUS_ANT_LOCK2_G;
+	xLed.stsAntLock2.Red 		= eLED_STATUS_ANT_LOCK2_R;
+	xLed.setDriving.Green 		= eLED_SETUP_DRIVING_G;
+	xLed.setDriving.Red 		= eLED_SETUP_DRIVING_R;
+	xLed.setDone.Green 			= eLED_SETUP_DONE_G;
+	xLed.setDone.Red 			= eLED_SETUP_DONE_R;
+}
+
+
+
+/*
+@funtion	void SetLedState(stLed *pLed, Uint16 Color, Uint16 State)
+@brief		
+@param		[ stLed *pLed ]	
+@param		[ Uint16 Color ]	
+@param		[ Uint16 State ]	
+@return		void
+@remark	
+	-	
+*/
+void SetLedState(stLed *pLed, Uint16 Color, Uint16 State)
+{
+	if((pLed->Color != Color)
+		|| (pLed->Status != State))
+	{
+		if(Color == LED_GREEN)
+		{
+			// GREEN
+			SetLedColor(pLed->Green, State);
+			SetLedColor(pLed->Red, LED_OFF);
+		}
+		else
+		{
+			// RED
+			SetLedColor(pLed->Green, LED_OFF);
+			SetLedColor(pLed->Red, State);
+		}
+
+		pLed->Color = Color;
+		pLed->Status = State;
+	}
+}
+
+
+
+/*
+@funtion	void SetLedColor(Uint16 Index, Uint16 State)
+@brief		
+@param		[ Uint16 Index ]	
+@param		[ Uint16 State ]	
+@return		void
+@remark	
+	-	
+*/
+void SetLedColor(Uint16 Index, Uint16 State)
+{
+	switch(Index)
+	{
+	case eLED_POWER_MAIN_G:
+		GpioDataRegs.GPADAT.bit.GPIO3 = State;
+	break;
+
+	case eLED_POWER_MAIN_R:
+		GpioDataRegs.GPCDAT.bit.GPIO68 = State;
+	break;
+
+	case eLED_POWER_DRIVING_G:
+		GpioDataRegs.GPADAT.bit.GPIO4 = State;
+	break;
+
+	case eLED_POWER_DRIVING_R:
+		GpioDataRegs.GPCDAT.bit.GPIO69 = State;
+	break;
+
+	case eLED_POWER_WARN_LAMP_G:
+		GpioDataRegs.GPADAT.bit.GPIO5 = State;
+	break;
+
+	case eLED_POWER_WARN_LAMP_R:
+		GpioDataRegs.GPCDAT.bit.GPIO70 = State;
+	break;
+
+	case eLED_REMOTE_G:
+		GpioDataRegs.GPADAT.bit.GPIO6 = State;
+	break;
+
+	case eLED_REMOTE_R:
+		GpioDataRegs.GPCDAT.bit.GPIO71 = State;
+	break;
+
+	case eLED_LOCAL_G:
+		GpioDataRegs.GPADAT.bit.GPIO7 = State;
+	break;
+
+	case eLED_LOCAL_R:
+		GpioDataRegs.GPCDAT.bit.GPIO73 = State;
+	break;
+
+	case eLED_ELEVATION_G:
+		GpioDataRegs.GPADAT.bit.GPIO8 = State;
+	break;
+
+	case eLED_ELEVATION_R:
+		GpioDataRegs.GPCDAT.bit.GPIO74 = State;
+	break;
+
+	case eLED_AZIMUTH_G:
+		GpioDataRegs.GPADAT.bit.GPIO9 = State;
+	break;
+
+	case eLED_AZIMUTH_R:
+		GpioDataRegs.GPCDAT.bit.GPIO75 = State;
+	break;
+
+	case eLED_STATUS_COMM_G:
+		GpioDataRegs.GPADAT.bit.GPIO13 = State;
+	break;
+
+	case eLED_STATUS_COMM_R:
+		GpioDataRegs.GPCDAT.bit.GPIO78 = State;
+	break;
+
+	case eLED_STATUS_CB_G:
+		GpioDataRegs.GPADAT.bit.GPIO14 = State;
+	break;
+
+	case eLED_STATUS_CB_R:
+		GpioDataRegs.GPCDAT.bit.GPIO79 = State;
+	break;
+
+	case eLED_STATUS_INCL_G:
+		GpioDataRegs.GPADAT.bit.GPIO15 = State;
+	break;
+
+	case eLED_STATUS_INCL_R:
+		GpioDataRegs.GPCDAT.bit.GPIO80 = State;
+	break;
+
+	case eLED_STATUS_DRIVING_POWER_G:
+		GpioDataRegs.GPADAT.bit.GPIO16 = State;
+	break;
+
+	case eLED_STATUS_DRIVING_POWER_R:
+		GpioDataRegs.GPCDAT.bit.GPIO81 = State;
+	break;
+
+	case eLED_STATUS_EL_MOTOR_G:
+		GpioDataRegs.GPADAT.bit.GPIO17 = State;
+	break;
+
+	case eLED_STATUS_EL_MOTOR_R:
+		GpioDataRegs.GPCDAT.bit.GPIO82 = State;
+	break;
+
+	case eLED_STATUS_AZ_MOTOR_G:
+		GpioDataRegs.GPADAT.bit.GPIO18 = State;
+	break;
+
+	case eLED_STATUS_AZ_MOTOR_R:
+		GpioDataRegs.GPCDAT.bit.GPIO83 = State;
+	break;
+
+	case eLED_STATUS_EL_SENSOR_G:
+		GpioDataRegs.GPADAT.bit.GPIO19 = State;
+	break;
+
+	case eLED_STATUS_EL_SENSOR_R:
+		GpioDataRegs.GPCDAT.bit.GPIO85 = State;
+	break;
+
+	case eLED_STATUS_AZ_SENSOR_G:
+		GpioDataRegs.GPADAT.bit.GPIO20 = State;
+	break;
+
+	case eLED_STATUS_AZ_SENSOR_R:
+		GpioDataRegs.GPCDAT.bit.GPIO86 = State;
+	break;
+
+	case eLED_STATUS_EL_BRAKE_G:
+		GpioDataRegs.GPADAT.bit.GPIO21 = State;
+	break;
+
+	case eLED_STATUS_EL_BRAKE_R:
+		GpioDataRegs.GPCDAT.bit.GPIO87 = State;
+	break;
+
+	case eLED_STATUS_AZ_BRAKE_G:
+		GpioDataRegs.GPADAT.bit.GPIO22 = State;
+	break;
+
+	case eLED_STATUS_AZ_BRAKE_R:
+		GpioDataRegs.GPCDAT.bit.GPIO88 = State;
+	break;
+
+	case eLED_STATUS_EL_LIMIT_G:
+		GpioDataRegs.GPADAT.bit.GPIO23 = State;
+	break;
+
+	case eLED_STATUS_EL_LIMIT_R:
+		GpioDataRegs.GPCDAT.bit.GPIO89 = State;
+	break;
+
+	case eLED_STATUS_ML_LIMIT_G:
+		GpioDataRegs.GPADAT.bit.GPIO24 = State;
+	break;
+
+	case eLED_STATUS_ML_LIMIT_R:
+		GpioDataRegs.GPCDAT.bit.GPIO91 = State;
+	break;
+
+	case eLED_STATUS_ANT_LOCK1_G:
+		//GpioDataRegs.GPADAT.bit.GPIO25 = State;
+		GpioDataRegs.GPADAT.bit.GPIO34 = State;
+	break;
+
+	case eLED_STATUS_ANT_LOCK1_R:
+		//GpioDataRegs.GPCDAT.bit.GPIO92 = State;
+		GpioDataRegs.GPADAT.bit.GPIO37 = State;
+	break;
+
+	case eLED_STATUS_ANT_LOCK2_G:
+		GpioDataRegs.GPADAT.bit.GPIO26 = State;
+	break;
+
+	case eLED_STATUS_ANT_LOCK2_R:
+		GpioDataRegs.GPCDAT.bit.GPIO93 = State;
+	break;
+
+	case eLED_SETUP_DRIVING_G:
+		GpioDataRegs.GPADAT.bit.GPIO10 = State;
+	break;
+
+	case eLED_SETUP_DRIVING_R:
+		GpioDataRegs.GPCDAT.bit.GPIO76 = State;
+	break;
+
+	case eLED_SETUP_DONE_G:
+		GpioDataRegs.GPADAT.bit.GPIO11 = State;
+	break;
+
+	case eLED_SETUP_DONE_R:
+		GpioDataRegs.GPCDAT.bit.GPIO77 = State;
+	break;
+	
+	default:
+		// MISRA
+	break;
+	}
+}
+
+
+
