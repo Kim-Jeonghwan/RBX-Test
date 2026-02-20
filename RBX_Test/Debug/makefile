@@ -4,7 +4,7 @@
 
 SHELL = cmd.exe
 
-CG_TOOL_ROOT := C:/ti/ccs2040/ti-cgt-c2000_22.6.1.LTS
+CG_TOOL_ROOT := C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-c2000_22.6.3.LTS
 
 GEN_OPTS__FLAG := 
 GEN_CMDS__FLAG := 
@@ -80,7 +80,7 @@ ORDERED_OBJS += \
 "./SDK/driverlib/version.obj" \
 "./SDK/driverlib/xbar.obj" \
 "./SDK/headers/source/f2838x_globalvariabledefs.obj" \
-"../SDK/common/cmd/2838x_flash_lnk_cpu1.cmd" \
+"../SDK/common/cmd/2838x_FLASH_lnk_cpu1.cmd" \
 "../SDK/headers/cmd/f2838x_headers_nonBIOS_cpu1.cmd" \
 $(GEN_CMDS__FLAG) \
 -llibc.a \
@@ -212,7 +212,7 @@ all: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
 RBX_Test.out: $(OBJS) $(CMD_SRCS) $(LIB_SRCS) $(GEN_CMDS)
 	@echo 'Building target: "$@"'
 	@echo 'Invoking: C2000 Linker'
-	"C:/ti/ccs2040/ti-cgt-c2000_22.6.1.LTS/bin/cl2000" -v28 -ml -mt --cla_support=cla2 --float_support=fpu64 --idiv_support=idiv0 --tmu_support=tmu0 --vcu_support=vcrc -O2 --opt_for_speed=5 --fp_mode=relaxed --fp_reassoc=on --advice:performance=all --define=CPU1 --define=_FLASH --define=USE_20MHZ_XTAL --define=_DUAL_HEADERS -g --diag_warning=225 --diag_wrap=off --display_error_number --gen_func_subsections=on --abi=eabi -z -m"RBX_Test.map" --stack_size=0x200 --warn_sections -i"C:/ti/ccs2040/ti-cgt-c2000_22.6.1.LTS/lib" -i"C:/ti/ccs2040/ti-cgt-c2000_22.6.1.LTS/include" --reread_libs --diag_wrap=off --display_error_number --xml_link_info="RBX_Test_linkInfo.xml" --rom_model -o "RBX_Test.out" $(ORDERED_OBJS)
+	"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-c2000_22.6.3.LTS/bin/cl2000" -v28 -ml -mt --cla_support=cla2 --float_support=fpu64 --idiv_support=idiv0 --tmu_support=tmu0 --vcu_support=vcrc -O2 --opt_for_speed=5 --fp_mode=relaxed --fp_reassoc=on --advice:performance=all --define=CPU1 --define=_FLASH --define=USE_20MHZ_XTAL --define=_DUAL_HEADERS --define=DONT_DECLARE_IFR_IER -g --diag_warning=225 --diag_wrap=off --display_error_number --gen_func_subsections=on --abi=eabi -z -m"RBX_Test.map" --stack_size=0x200 --warn_sections -i"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-c2000_22.6.3.LTS/lib" -i"C:/ti/ccs2040/ccs/tools/compiler/ti-cgt-c2000_22.6.3.LTS/include" --reread_libs --diag_wrap=off --display_error_number --xml_link_info="RBX_Test_linkInfo.xml" --rom_model -o "RBX_Test.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: "$@"'
 	@echo ' '
 

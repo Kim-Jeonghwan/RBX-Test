@@ -1,10 +1,12 @@
 
 MEMORY
 {
-
-   BOOT_RSVD        : origin = 0x000002, length = 0x0001AE     /* Part of M0, BOOT rom will use this for stack */
-   RAMM0            : origin = 0x0001B0, length = 0x000250
-   RAMM1            : origin = 0x000400, length = 0x000400     /* on-chip RAM block M1 */
+   /* BEGIN is used for the "boot to Flash" bootloader mode   */
+   BEGIN            : origin = 0x080000, length = 0x000002
+   BOOT_RSVD        : origin = 0x000002, length = 0x0001AF     /* Part of M0, BOOT rom will use this for stack */
+   RAMM0            : origin = 0x0001B1, length = 0x00024F
+   RAMM1            : origin = 0x000400, length = 0x0003F8     /* on-chip RAM block M1 */
+//   RAMM1_RSVD       : origin = 0x0007F8, length = 0x000008     /* Reserve and do not use for code as per the errata advisory "Memory: Prefetching Beyond Valid Memory" */
    RAMD0            : origin = 0x00C000, length = 0x000800
    RAMD1            : origin = 0x00C800, length = 0x000800
    RAMLS0           : origin = 0x008000, length = 0x000800
@@ -30,15 +32,9 @@ MEMORY
    RAMGS12          : origin = 0x019000, length = 0x001000
    RAMGS13          : origin = 0x01A000, length = 0x001000
    RAMGS14          : origin = 0x01B000, length = 0x001000
-   RAMGS15          : origin = 0x01C000, length = 0x001000
+   RAMGS15          : origin = 0x01C000, length = 0x000FF8
+//   RAMGS15_RSVD     : origin = 0x01CFF8, length = 0x000008     /* Reserve and do not use for code as per the errata advisory "Memory: Prefetching Beyond Valid Memory" */
 
-#ifdef __TI_COMPILER_VERSION__
-   #if __TI_COMPILER_VERSION__ >= 20012000
-GROUP {      /* GROUP memory ranges for crc/checksum of entire flash */
-   #endif
-#endif
-   /* BEGIN is used for the "boot to Flash" bootloader mode   */
-   BEGIN            : origin = 0x080000, length = 0x000002
    /* Flash sectors */
    FLASH0           : origin = 0x080002, length = 0x001FFE  /* on-chip Flash */
    FLASH1           : origin = 0x082000, length = 0x002000  /* on-chip Flash */
@@ -53,14 +49,9 @@ GROUP {      /* GROUP memory ranges for crc/checksum of entire flash */
    FLASH10          : origin = 0x0B8000, length = 0x002000  /* on-chip Flash */
    FLASH11          : origin = 0x0BA000, length = 0x002000  /* on-chip Flash */
    FLASH12          : origin = 0x0BC000, length = 0x002000  /* on-chip Flash */
-   FLASH13           : origin = 0x0BE000, length = 0x001FF0	/* on-chip Flash */
-   FLASH13_DO_NOT_USE     : origin = 0x0BFFF0, length = 0x000010    /* Reserve and do not use for code as per the errata advisory "Memory: Prefetching Beyond Valid Memory" */
-   
-#ifdef __TI_COMPILER_VERSION__
-  #if __TI_COMPILER_VERSION__ >= 20012000
-}  crc(_ccs_flash_checksum, algorithm=C28_CHECKSUM_16)
-  #endif
-#endif
+   FLASH13          : origin = 0x0BE000, length = 0x001FF0  /* on-chip Flash */
+//   FLASH13_RSVD     : origin = 0x0BFFF0, length = 0x000010  /* Reserve and do not use for code as per the errata advisory "Memory: Prefetching Beyond Valid Memory" */
+
    CPU1TOCPU2RAM   : origin = 0x03A000, length = 0x000800
    CPU2TOCPU1RAM   : origin = 0x03B000, length = 0x000800
    CPUTOCMRAM      : origin = 0x039000, length = 0x000800
@@ -74,29 +65,29 @@ GROUP {      /* GROUP memory ranges for crc/checksum of entire flash */
 
 SECTIONS
 {
-   codestart           : > BEGIN, ALIGN(4)
-   .text               : >> FLASH1 | FLASH2 | FLASH3 | FLASH4, ALIGN(4)
-   .cinit              : > FLASH4, ALIGN(4)
-   .switch             : > FLASH1, ALIGN(4)
+   codestart           : > BEGIN, ALIGN(8)
+   .text               : >> FLASH1 | FLASH2 | FLASH3 | FLASH4, ALIGN(8)
+   .cinit              : > FLASH4, ALIGN(8)
+   .switch             : > FLASH1, ALIGN(8)
    .reset              : > RESET, TYPE = DSECT /* not used, */
    .stack              : > RAMM1
 
 #if defined(__TI_EABI__)
-   .init_array      : > FLASH1, ALIGN(4)
+   .init_array      : > FLASH1, ALIGN(8)
    .bss             : > RAMLS5
    .bss:output      : > RAMLS3
    .bss:cio         : > RAMLS5
    .data            : > RAMLS5
    .sysmem          : > RAMLS5
    /* Initalized sections go in Flash */
-   .const           : > FLASH5, ALIGN(4)
+   .const           : > FLASH5, ALIGN(8)
 #else
-   .pinit           : > FLASH1, ALIGN(4)
+   .pinit           : > FLASH1, ALIGN(8)
    .ebss            : > RAMLS5
    .esysmem         : > RAMLS5
    .cio             : > RAMLS5
    /* Initalized sections go in Flash */
-   .econst          : >> FLASH4 | FLASH5, ALIGN(4)
+   .econst          : >> FLASH4 | FLASH5, ALIGN(8)
 #endif
 
    ramgs0 : > RAMGS0, type=NOINIT
@@ -124,7 +115,7 @@ SECTIONS
                         RUN_START(RamfuncsRunStart),
                         RUN_SIZE(RamfuncsRunSize),
                         RUN_END(RamfuncsRunEnd),
-                        ALIGN(4)
+                        ALIGN(8)
    #else
        .TI.ramfunc : {} LOAD = FLASH3,
                         RUN = RAMLS0 | RAMLS1 | RAMLS2 |RAMLS3,
@@ -134,11 +125,8 @@ SECTIONS
                         RUN_START(_RamfuncsRunStart),
                         RUN_SIZE(_RamfuncsRunSize),
                         RUN_END(_RamfuncsRunEnd),
-                        ALIGN(4)
+                        ALIGN(8)
    #endif
-
-   /* crc/checksum section configured as COPY section to avoid including in executable */
-   .TI.memcrc          : type = COPY
 
 }
 

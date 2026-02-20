@@ -5,8 +5,10 @@
 // TITLE:  C28x RAM config driver.
 //
 //###########################################################################
-// $Copyright:
-// Copyright (C) 2022 Texas Instruments Incorporated - http://www.ti.com
+// 
+// C2000Ware v6.00.01.00
+//
+// Copyright (C) 2024 Texas Instruments Incorporated - http://www.ti.com
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -796,13 +798,13 @@ MemCfg_getInitStatus(uint32_t ramSections)
             // Return the overall status.
             //
             if((HWREG(MEMCFG_BASE + MEMCFG_O_DXINITDONE) ==
-                MEMCFG_SECT_DX_ALL) &&
+                (MEMCFG_SECT_DX_ALL & MEMCFG_SECT_NUM_MASK)) &&
                (HWREG(MEMCFG_BASE + MEMCFG_O_LSXINITDONE) ==
-                MEMCFG_SECT_LSX_ALL) &&
+                (MEMCFG_SECT_LSX_ALL & MEMCFG_SECT_NUM_MASK)) &&
                (HWREG(MEMCFG_BASE + MEMCFG_O_GSXINITDONE) ==
-                MEMCFG_SECT_GSX_ALL) &&
+                (MEMCFG_SECT_GSX_ALL & MEMCFG_SECT_NUM_MASK)) &&
                (HWREG(MEMCFG_BASE + MEMCFG_O_MSGXINITDONE) ==
-                MEMCFG_SECT_MSGX_ALL))
+                (MEMCFG_SECT_MSGX_ALL & MEMCFG_SECT_NUM_MASK)))
             {
                 status = MEMCFG_SECT_NUM_MASK;
             }

@@ -5,8 +5,10 @@
 // TITLE:  C28x ERAD driver.
 //
 //###########################################################################
-// $Copyright:
-// Copyright (C) 2022 Texas Instruments Incorporated - http://www.ti.com
+// 
+// C2000Ware v6.00.01.00
+//
+// Copyright (C) 2024 Texas Instruments Incorporated - http://www.ti.com
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -400,9 +402,9 @@ typedef enum
 typedef enum
 {
     ERAD_COUNTER_COUNT_INPUT = 0,
-    ERAD_COUNTER_START_INPUT = 1,
-    ERAD_COUNTER_STOP_INPUT  = 2,
-    ERAD_COUNTER_RESET_INPUT = 3
+    ERAD_COUNTER_START_INPUT = 4,
+    ERAD_COUNTER_STOP_INPUT  = 8,
+    ERAD_COUNTER_RESET_INPUT = 12
 } ERAD_Counter_Input_Type;
 
 //*****************************************************************************

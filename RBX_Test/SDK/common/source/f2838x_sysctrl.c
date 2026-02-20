@@ -11,8 +11,10 @@
 //###########################################################################
 //
 //
-// $Copyright:
-// Copyright (C) 2022 Texas Instruments Incorporated - http://www.ti.com
+// 
+// C2000Ware v6.00.01.00
+//
+// Copyright (C) 2024 Texas Instruments Incorporated - http://www.ti.com
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -47,6 +49,7 @@
 //
 // Included Files
 //
+#include "device.h"  // RamfuncsRunStart 등을 찾기 위해 필요합니다.(임의 추가-260220)
 #include "f2838x_device.h"
 #include "f2838x_examples.h"
 #include "math.h"

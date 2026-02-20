@@ -68,6 +68,6 @@
 "./SDK/driverlib/version.obj"
 "./SDK/driverlib/xbar.obj"
 "./SDK/headers/source/f2838x_globalvariabledefs.obj"
-"../SDK/common/cmd/2838x_flash_lnk_cpu1.cmd"
+"../SDK/common/cmd/2838x_FLASH_lnk_cpu1.cmd"
 "../SDK/headers/cmd/f2838x_headers_nonBIOS_cpu1.cmd"
 -llibc.a

@@ -5,8 +5,10 @@
 // TITLE:  C28x I2C driver.
 //
 //###########################################################################
-// $Copyright:
-// Copyright (C) 2022 Texas Instruments Incorporated - http://www.ti.com
+// 
+// C2000Ware v6.00.01.00
+//
+// Copyright (C) 2024 Texas Instruments Incorporated - http://www.ti.com
 //
 // Redistribution and use in source and binary forms, with or without 
 // modification, are permitted provided that the following conditions 
@@ -256,7 +258,7 @@ I2C_getInterruptStatus(uint32_t base)
     //
     // Return only the status bits associated with interrupts.
     //
-    temp = (uint32_t)(HWREGH(base + I2C_O_STR) & I2C_STR_INTMASK);
+    temp = (uint32_t)HWREGH(base + I2C_O_STR) & (uint32_t)I2C_STR_INTMASK;
 
     //
     // Read FIFO interrupt flags.
