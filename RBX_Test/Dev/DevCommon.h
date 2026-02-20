@@ -34,47 +34,47 @@
 /* ************************** [[   enum or struct   ]]  *************************************************** */
 typedef union
 {
-    Uint32 		u32;
-	float32 	f32;
+    uint32_t 		u32;
+	float 	f32;
 
     struct
     {
-	    Uint16 B0:8u;
-	    Uint16 B1:8u;
-	    Uint16 B2:8u;
-	    Uint16 B3:8u;
+	    uint16_t B0:8u;
+	    uint16_t B1:8u;
+	    uint16_t B2:8u;
+	    uint16_t B3:8u;
     } byte;
 }onConv32;
 
 
 typedef union
 {
-    Uint16 u16;
+    uint16_t u16;
 
     struct
     {
-	    Uint16 B0:8u;
-	    Uint16 B1:8u;
+	    uint16_t B0:8u;
+	    uint16_t B1:8u;
     } byte;
 
 	struct
 	{
-		Uint16 b00:1u;
-		Uint16 b01:1u;
-		Uint16 b02:1u;
-		Uint16 b03:1u;
-		Uint16 b04:1u;
-		Uint16 b05:1u;
-		Uint16 b06:1u;
-		Uint16 b07:1u;
-		Uint16 b08:1u;
-		Uint16 b09:1u;
-		Uint16 b10:1u;
-		Uint16 b11:1u;
-		Uint16 b12:1u;
-		Uint16 b13:1u;
-		Uint16 b14:1u;
-		Uint16 b15:1u;
+		uint16_t b00:1u;
+		uint16_t b01:1u;
+		uint16_t b02:1u;
+		uint16_t b03:1u;
+		uint16_t b04:1u;
+		uint16_t b05:1u;
+		uint16_t b06:1u;
+		uint16_t b07:1u;
+		uint16_t b08:1u;
+		uint16_t b09:1u;
+		uint16_t b10:1u;
+		uint16_t b11:1u;
+		uint16_t b12:1u;
+		uint16_t b13:1u;
+		uint16_t b14:1u;
+		uint16_t b15:1u;
 	} bit;
 }onConv16;
 

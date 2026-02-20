@@ -72,10 +72,10 @@ void Init_Eqep1(void)
 void EqeptoEncoder(void)
 {
 	// 1. 각도 계산
-    xXmtIpcMsg1.EncoderAngle = (Uint32)(EQEP_getPosition(EQEP1_BASE) * (360.0f / 96.0f) * 10 + 0.5f); // +0.5f : 소수 1자리 반올림 위함
+    xXmtIpcMsg1.EncoderAngle = (uint32_t)(EQEP_getPosition(EQEP1_BASE) * (360.0f / 96.0f) * 10 + 0.5f); // +0.5f : 소수 1자리 반올림 위함
         
     // 2. RawPD 계산
-    xXmtIpcMsg1.EncoderRawPD = (Uint32)(((float)EQEP_getPosition(EQEP1_BASE) / 96) * 1048576.0f);
+    xXmtIpcMsg1.EncoderRawPD = (uint32_t)(((float)EQEP_getPosition(EQEP1_BASE) / 96) * 1048576.0f);
 }
 
 

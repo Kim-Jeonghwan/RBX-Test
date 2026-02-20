@@ -69,7 +69,7 @@ void InitAdcModules(void);
 float low_pass_filter(float input, float alpha, float *prev_output);
 
 
-float32 Within_f32(float32 val, float32 min, float32 max);
+float Within_f32(float val, float min, float max);
 
 void initEPWM8(void);
 

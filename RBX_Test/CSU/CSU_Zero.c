@@ -23,8 +23,8 @@ extern stXmtIpcMsg1 xXmtIpcMsg1;
 /* ************************** [[  static prototype  ]]  *************************************************** */
 /* 정적 변수 */
 static eZeroStep xZeroStep = eZERO_IDLE;
-static Uint32 u32TickCnt = 0u;
-static Uint16 bIsSetAction = 0u; // 1: Set동작, 0: Rst동작 플래그
+static uint32_t u32TickCnt = 0u;
+static uint16_t bIsSetAction = 0u; // 1: Set동작, 0: Rst동작 플래그
 
 
 /* ************************** [[  function  ]]  *********************************************************** */
@@ -63,7 +63,7 @@ void initEncoderZero(void)
     GPIO_writePin(GPIO_ENC_PWR_EN, 1u); 
     
     // 전원 상태 초기화 (GPIO 상태 반영)
-    xXmtIpcMsg1.EncPwrStat = (Uint16)GPIO_readPin(GPIO_ENC_PWR_EN);
+    xXmtIpcMsg1.EncPwrStat = (uint16_t)GPIO_readPin(GPIO_ENC_PWR_EN);
     xXmtIpcMsg1.EncBusy    = 0u;
     xXmtIpcMsg1.EncDone    = 0u;
 }
@@ -195,7 +195,7 @@ void procEncoderZero(void)
     }
 
     // [중요] 항상 실제 GPIO 출력 상태를 읽어서 IPC 상태 비트에 반영
-    xXmtIpcMsg1.EncPwrStat = (Uint16)GPIO_readPin(GPIO_ENC_PWR_EN);
+    xXmtIpcMsg1.EncPwrStat = (uint16_t)GPIO_readPin(GPIO_ENC_PWR_EN);
 
 
 }

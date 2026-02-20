@@ -19,8 +19,8 @@ stLedStatus xLed;
 
 
 /* ************************** [[  static prototype  ]]  *************************************************** */
-static void HW_writeLedPin(Uint16 Index, Uint16 State); 
-static void HW_toggleLedPin(Uint16 Index);
+static void HW_writeLedPin(uint16_t Index, uint16_t State); 
+static void HW_toggleLedPin(uint16_t Index);
 
 
 /* ************************** [[  function  ]]  *********************************************************** */
@@ -128,7 +128,7 @@ void Initial_LED(void)
  */
 void updateLedStatus(void)
 {
-    Uint16 i = 0u;
+    uint16_t i = 0u;
     stLed *pLed[2];
     
     pLed[0] = &xLed.ledGreen;
@@ -161,7 +161,7 @@ void updateLedStatus(void)
  * @param pLed 대상 LED 구조체 포인터
  * @param State LED_ON(1) 또는 LED_OFF(0)
  */
-void setLedStatus(stLed *pLed, Uint16 State)
+void setLedStatus(stLed *pLed, uint16_t State)
 {
     if(pLed->State != State)
     {
@@ -177,7 +177,7 @@ void setLedStatus(stLed *pLed, Uint16 State)
  * @param State LED_TOGGLE(1) 또는 LED_NONE(0)
  * @param Time 토글 주기 카운트
  */
-void setLedModeToggle(stLed *pLed, Uint16 State, Uint16 Time)
+void setLedModeToggle(stLed *pLed, uint16_t State, uint16_t Time)
 {
     pLed->Toggle = State;
     pLed->Time   = Time;
@@ -189,7 +189,7 @@ void setLedModeToggle(stLed *pLed, Uint16 State, Uint16 Time)
 /**
  * @brief 하드웨어 GPADAT 레지스터 직접 제어 (Internal Only)
  */
-static void HW_writeLedPin(Uint16 Index, Uint16 State)
+static void HW_writeLedPin(uint16_t Index, uint16_t State)
 {
 	switch(Index)
 	{
@@ -241,7 +241,7 @@ static void HW_writeLedPin(Uint16 Index, Uint16 State)
 /**
  * @brief 하드웨어 GPATOGGLE 레지스터 직접 제어 (Internal Only)
  */
-static void HW_toggleLedPin(Uint16 Index)
+static void HW_toggleLedPin(uint16_t Index)
 {
 	switch(Index)
 	{

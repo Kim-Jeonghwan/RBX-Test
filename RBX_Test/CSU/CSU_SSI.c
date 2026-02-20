@@ -131,7 +131,7 @@ static void updateEncoderState(void)
 
         // IPC 송신 패킷 업데이트
         xXmtIpcMsg1.IsValid      = 1u;
-        xXmtIpcMsg1.EncoderAngle = (Uint32)(xEncoderA.ANGLE * 10.0f + 0.5f); // 소수점 1자리 반올림 (예: 12.34 -> 123)
+        xXmtIpcMsg1.EncoderAngle = (uint32_t)(xEncoderA.ANGLE * 10.0f + 0.5f); // 소수점 1자리 반올림 (예: 12.34 -> 123)
         xXmtIpcMsg1.EncoderRawPD = xEncoderA.PD;
         xXmtIpcMsg1.Err_PV       = 0u;
         xXmtIpcMsg1.Err_CRC      = 0u;

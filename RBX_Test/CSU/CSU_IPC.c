@@ -36,9 +36,9 @@ stXmtIpcMsg1	xXmtIpcMsg1;
  * @param ID 수신된 메시지의 식별 번호 (0x10u)
  * @param Data[] 수신된 데이터 배열 (바이트 단위)
  */
-void recvIpcMessage(Uint16 ID, Uint16 Data[])
+void recvIpcMessage(uint16_t ID, uint16_t Data[])
 {
-    volatile Uint16 pos = 0u;
+    volatile uint16_t pos = 0u;
 
     onConv32 on32;
     onConv16 on16;
@@ -50,23 +50,23 @@ void recvIpcMessage(Uint16 ID, Uint16 Data[])
         xRcvIpcMsg1.IncNumber = Data[pos++];
 
         /* 2. Command 저장 (Little Endian: LSB First) */
-        on16.byte.B0 = (Uint8)Data[pos++]; // 첫 번째 바이트를 하위(B0)로 저장
-        on16.byte.B1 = (Uint8)Data[pos++]; // 두 번째 바이트를 상위(B1)로 저장
+        on16.byte.B0 = (uint8_t)Data[pos++]; // 첫 번째 바이트를 하위(B0)로 저장
+        on16.byte.B1 = (uint8_t)Data[pos++]; // 두 번째 바이트를 상위(B1)로 저장
         
         xRcvIpcMsg1.Command.all = on16.u16;
 
-        /* 3. Reserved1 (float32 - Little Endian) */
-        on32.byte.B0 = (Uint8)Data[pos++];
-        on32.byte.B1 = (Uint8)Data[pos++];
-        on32.byte.B2 = (Uint8)Data[pos++];
-        on32.byte.B3 = (Uint8)Data[pos++];
+        /* 3. Reserved1 (float - Little Endian) */
+        on32.byte.B0 = (uint8_t)Data[pos++];
+        on32.byte.B1 = (uint8_t)Data[pos++];
+        on32.byte.B2 = (uint8_t)Data[pos++];
+        on32.byte.B3 = (uint8_t)Data[pos++];
         xRcvIpcMsg1.Reserved1 = on32.f32;
 
-        /* 4. Reserved2 (float32 - Little Endian) */
-        on32.byte.B0 = (Uint8)Data[pos++];
-        on32.byte.B1 = (Uint8)Data[pos++];
-        on32.byte.B2 = (Uint8)Data[pos++];
-        on32.byte.B3 = (Uint8)Data[pos++];
+        /* 4. Reserved2 (float - Little Endian) */
+        on32.byte.B0 = (uint8_t)Data[pos++];
+        on32.byte.B1 = (uint8_t)Data[pos++];
+        on32.byte.B2 = (uint8_t)Data[pos++];
+        on32.byte.B3 = (uint8_t)Data[pos++];
         xRcvIpcMsg1.Reserved2 = on32.f32;
 
     break;
@@ -83,12 +83,12 @@ void recvIpcMessage(Uint16 ID, Uint16 Data[])
  */
 void sendIpcMessage1(void)
 {
-    volatile Uint16 pos = 0u;
+    volatile uint16_t pos = 0u;
     onConv32 on32;
     onConv16 on16;
-    Uint16 i = 0u;
-    Uint16 Buf[25u] = {0u, }; 
-    Uint16 CheckSum = 0u;
+    uint16_t i = 0u;
+    uint16_t Buf[25u] = {0u, }; 
+    uint16_t CheckSum = 0u;
 
     /* 1. 헤더 구성 */
     Buf[pos++] = IPC_SOF;           // Buf[0]: 0x7E
@@ -96,7 +96,7 @@ void sendIpcMessage1(void)
     Buf[pos++] = 0u;                // Buf[2]: Length (데이터 개수 11이 들어갈 자리)
     
     /* 2. Sequence Number */
-    Buf[pos++] = (Uint16)(xXmtIpcMsg1.IncNumber++ & 0xFFu); // Buf[3]
+    Buf[pos++] = (uint16_t)(xXmtIpcMsg1.IncNumber++ & 0xFFu); // Buf[3]
 
     /* 3. Status Bit Fields 직접 조립 (가장 안전한 방법) */
     on16.u16 = 0u; // 필수: 쓰레기 값 방지
@@ -111,14 +111,14 @@ void sendIpcMessage1(void)
     
     Buf[pos++] = on16.byte.B0; // Buf[4]: Status Byte (PC expects 1 byte)
 
-    /* 4. EncoderAngle (Uint32 - 4 bytes, Little Endian) */
+    /* 4. EncoderAngle (uint32_t - 4 bytes, Little Endian) */
     on32.u32 = xXmtIpcMsg1.EncoderAngle;
     Buf[pos++] = on32.byte.B0; // Buf[5]
     Buf[pos++] = on32.byte.B1; // Buf[6]
     Buf[pos++] = on32.byte.B2; // Buf[7]
     Buf[pos++] = on32.byte.B3; // Buf[8]
 
-    /* 5. EncoderRawPD (Uint32 - 4 bytes, Little Endian) */
+    /* 5. EncoderRawPD (uint32_t - 4 bytes, Little Endian) */
     on32.u32 = xXmtIpcMsg1.EncoderRawPD;
     Buf[pos++] = on32.byte.B0; // Buf[9]
     Buf[pos++] = on32.byte.B1; // Buf[10]
@@ -126,7 +126,7 @@ void sendIpcMessage1(void)
     Buf[pos++] = on32.byte.B3; // Buf[12]
 
     /* 6. 데이터 길이(LEN) 계산 및 업데이트 */
-    Buf[2] = (Uint16)(pos - 2u);
+    Buf[2] = (uint16_t)(pos - 2u);
 
     /* 7. CheckSum 계산 (Length인 Buf[2]부터 데이터 끝인 Buf[pos-1]까지) */
     CheckSum = 0u;
@@ -135,7 +135,7 @@ void sendIpcMessage1(void)
         CheckSum += (Buf[i] & 0xFFu);
     }
 
-    Buf[pos++] = (Uint16)(CheckSum & 0xFFu); // Buf[13]
+    Buf[pos++] = (uint16_t)(CheckSum & 0xFFu); // Buf[13]
     Buf[pos++] = IPC_EOT;                   // Buf[14]: 0x0D
 
 

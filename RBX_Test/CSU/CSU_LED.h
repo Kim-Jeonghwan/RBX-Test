@@ -53,12 +53,12 @@ typedef enum
  */
 typedef struct
 {
-    Uint16 Index:8u;    // GPIO Index (eLed 타입 저장)
-    Uint16 Time:8u;     // Toggle 주기 설정
-    Uint16 Temp:8u;     // 카운트 다운용 임시 변수
-    Uint16 State:1u;    // 현재 점등 상태 (0: Off, 1: On)
-    Uint16 Toggle:1u;   // 토글 모드 활성 (0: None, 1: Toggle)
-    Uint16 Reserved:14u;
+    uint16_t Index:8u;    // GPIO Index (eLed 타입 저장)
+    uint16_t Time:8u;     // Toggle 주기 설정
+    uint16_t Temp:8u;     // 카운트 다운용 임시 변수
+    uint16_t State:1u;    // 현재 점등 상태 (0: Off, 1: On)
+    uint16_t Toggle:1u;   // 토글 모드 활성 (0: None, 1: Toggle)
+    uint16_t Reserved:14u;
 } stLed;
 
 /**
@@ -106,12 +106,12 @@ void updateLedStatus(void);
  * @brief LED의 On/Off 상태를 직접 설정 (토글 중단)
 
  */
-void setLedStatus(stLed *pLed, Uint16 State);
+void setLedStatus(stLed *pLed, uint16_t State);
 
 /**
  * @brief LED 토글 모드 활성화 및 주기 설정
  */
-void setLedModeToggle(stLed *pLed, Uint16 State, Uint16 Time);
+void setLedModeToggle(stLed *pLed, uint16_t State, uint16_t Time);
 
 /**
  * @brief IsValid 상태에 따라 Orange LED 제어

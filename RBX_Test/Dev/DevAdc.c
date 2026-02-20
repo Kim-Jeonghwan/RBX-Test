@@ -39,13 +39,13 @@
 
 
 /* ************************** [[   global   ]]  *********************************************************** */
-float32 lpf_PrevValue   = 0.0f;     // ADC LPF 이전 값
-float32 lpf_PrevPWM7a   = 0.0f;     // ADC LPF 이전 값 (PWM7a)
+float lpf_PrevValue   = 0.0f;     // ADC LPF 이전 값
+float lpf_PrevPWM7a   = 0.0f;     // ADC LPF 이전 값 (PWM7a)
 
 
-Uint16  ResultsIndex    = 0u;       // ADC 결과 인덱스
+uint16_t  ResultsIndex    = 0u;       // ADC 결과 인덱스
 
-float32 AdcResults[BUFF_SIZE];      // ADC 결과 저장 버퍼
+float AdcResults[BUFF_SIZE];      // ADC 결과 저장 버퍼
 
 /* ************************** [[  function  ]]  *********************************************************** */
 
@@ -65,11 +65,11 @@ float32 AdcResults[BUFF_SIZE];      // ADC 결과 저장 버퍼
 */
 interrupt void AdcaIsr(void)
 {
-    Uint16 i = 0u;
-    float32 AdcResultSUM = 0.0f;            // ADC 결과 합산 변수
+    uint16_t i = 0u;
+    float AdcResultSUM = 0.0f;            // ADC 결과 합산 변수
 
     // ADCINA2 결과 읽기 및 전압 변환 ( 3.3 / 4096 = 0.0008056640625f)
-    xAdcApp.PotenRaw = (float32)AdcaResultRegs.ADCRESULT0 * CONV_ADC_3_3V;
+    xAdcApp.PotenRaw = (float)AdcaResultRegs.ADCRESULT0 * CONV_ADC_3_3V;
 
 	xTimer.Hzcnt++;
 
@@ -82,13 +82,13 @@ interrupt void AdcaIsr(void)
     }
 
     // 이동 평균 배열 합계 계산
-    for(i = 0u; i < (Uint16)DEFAULT_MAVE_COUNT; i++)
+    for(i = 0u; i < (uint16_t)DEFAULT_MAVE_COUNT; i++)
     {
         AdcResultSUM += AdcResults[i];
     }
 
     // 평균값 계산 및 전역 구조체 저장
-    xAdcApp.PotenMAVE = (AdcResultSUM / (float32)DEFAULT_MAVE_COUNT);
+    xAdcApp.PotenMAVE = (AdcResultSUM / (float)DEFAULT_MAVE_COUNT);
 
 
     AdcaRegs.ADCINTFLGCLR.bit.ADCINT1 = 1;      // ADC-A 인터럽트 플래그(ADCINT1) 클리어
@@ -200,16 +200,16 @@ float low_pass_filter(float input, float alpha, float *prev_output)
 }
 
 /*
-@funtion    float32 Within_f32(float32 val, float32 min, float32 max)
+@funtion    float Within_f32(float val, float min, float max)
 @brief      값의 범위를 제한 (Saturation)
-@param      float32 val: 입력 값
-@param      float32 min: 최솟값
-@param      float32 max: 최댓값
-@return     float32: 제한된 범위 내의 결과
+@param      float val: 입력 값
+@param      float min: 최솟값
+@param      float max: 최댓값
+@return     float: 제한된 범위 내의 결과
 @remark
     -
 */
-float32 Within_f32(float32 val, float32 min, float32 max)
+float Within_f32(float val, float min, float max)
 {
     if (val <= min) return min;
     if (val >= max) return max;
@@ -231,7 +231,7 @@ void initEPWM8(void)
     CpuSysRegs.PCLKCR2.bit.EPWM8 = 1u; // ePWM8 클럭 활성화
     
     // ePWM8 기본 설정
-    EPwm8Regs.TBPRD = SYSCLK / ((Uint32)DEFAULT_PWM_HZ * 4u); // 주기 설정 (예: 500 타임베이스 = 100kHz)
+    EPwm8Regs.TBPRD = SYSCLK / ((uint32_t)DEFAULT_PWM_HZ * 4u); // 주기 설정 (예: 500 타임베이스 = 100kHz)
     EPwm8Regs.TBPHS.bit.TBPHS = 0x0000u; // 위상 0 설정
     EPwm8Regs.TBCTR = 0x0000u;          // 타임베이스 카운터 초기화
 

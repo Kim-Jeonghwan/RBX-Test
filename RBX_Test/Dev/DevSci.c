@@ -40,9 +40,9 @@ static stQsci	xQueIPC;
 static void initScib_IPC(void);
 
 
-static void enqueueSci(stQsci *pstQ, Uint16 Data);
+static void enqueueSci(stQsci *pstQ, uint16_t Data);
 
-static Uint16 dequeueSci(stQsci *pstQ, Uint16 *pData);
+static uint16_t dequeueSci(stQsci *pstQ, uint16_t *pData);
 
 
 /* ************************** [[  function  ]]  *********************************************************** */
@@ -151,7 +151,7 @@ __interrupt void isrScib_IPC(void)
 {
 	static stSciB	xRcvIPC;
 
-    Uint16 Data[1u];
+    uint16_t Data[1u];
 
 	// FIFO에 데이터가 있을 때만 루프를 돌며 읽는 것이 안전하지만, 
     // 현재 레벨이 1이므로 1바이트씩 처리하는 로직을 유지
@@ -236,18 +236,18 @@ __interrupt void isrScib_IPC(void)
 
 
 /*
-@funtion	void xmtScib_IPC(Uint16 data[], Uint16 len)
+@funtion	void xmtScib_IPC(uint16_t data[], uint16_t len)
 @brief		
-@param		[ Uint16 data[] ]	
-@param		[ Uint16 len ]	
+@param		[ uint16_t data[] ]	
+@param		[ uint16_t len ]	
 @return		void
 @remark	
 	-	
 */
-void xmtScib_IPC(Uint16 data[], Uint16 len)
+void xmtScib_IPC(uint16_t data[], uint16_t len)
 {
 #if 1 // 2025-08-05 9:13:57
-	Uint16 i = 0u;
+	uint16_t i = 0u;
 
 	for(i = 0u; i < len; i++)
 	{
@@ -270,10 +270,10 @@ void xmtScib_IPC(Uint16 data[], Uint16 len)
 */
 void sendScib_IPC(void)
 {
-    Uint16 i = 0u;
-    Uint16 len = 0u;
-    Uint16 popData = 0u;
-    Uint16 sendData[20u] = {0u};		// 10 에서 20으로 변경
+    uint16_t i = 0u;
+    uint16_t len = 0u;
+    uint16_t popData = 0u;
+    uint16_t sendData[20u] = {0u};		// 10 에서 20으로 변경
 
     for(i = 0u; i < 20u; i++)
     {
@@ -293,17 +293,17 @@ void sendScib_IPC(void)
 
 
 /*
-@funtion	static void enqueueSci(stQsci *pstQ, Uint16 Data)
+@funtion	static void enqueueSci(stQsci *pstQ, uint16_t Data)
 @brief		
 @param		[ stQsci *pstQ ]	
-@param		[ Uint16 Data ]	
+@param		[ uint16_t Data ]	
 @return		static void
 @remark	
 	-	
 */
-static void enqueueSci(stQsci *pstQ, Uint16 Data)
+static void enqueueSci(stQsci *pstQ, uint16_t Data)
 {
-    Uint16 nRear = 0u;
+    uint16_t nRear = 0u;
 
     if(pstQ->rear < QUEUE_MAX_SCI)
     {
@@ -321,17 +321,17 @@ static void enqueueSci(stQsci *pstQ, Uint16 Data)
 
 
 /*
-@funtion	static Uint16 dequeueSci(stQsci *pstQ, Uint16 *pData)
+@funtion	static uint16_t dequeueSci(stQsci *pstQ, uint16_t *pData)
 @brief		
 @param		[ stQsci *pstQ ]	
-@param		[ Uint16 *pData ]	
-@return		static Uint16
+@param		[ uint16_t *pData ]	
+@return		static uint16_t
 @remark	
 	-	
 */
-static Uint16 dequeueSci(stQsci *pstQ, Uint16 *pData)
+static uint16_t dequeueSci(stQsci *pstQ, uint16_t *pData)
 {
-    Uint16 result = 0u;
+    uint16_t result = 0u;
 
     if(pstQ->front != pstQ->rear)
     {

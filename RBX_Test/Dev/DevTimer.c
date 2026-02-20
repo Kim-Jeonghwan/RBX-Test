@@ -34,7 +34,7 @@ stTimer xTimer;
 /* ************************** [[  static prototype  ]]  *************************************************** */
 static void initCPUTimers(void);
 
-static void configCPUTimer(Uint32 cpuTimer, float freq, float period);
+static void configCPUTimer(uint32_t cpuTimer, float freq, float period);
 
 
 /* ************************** [[  function  ]]  *********************************************************** */
@@ -137,14 +137,14 @@ static void initCPUTimers(void)
 // entered as Hz and the period in uSeconds. The timer is held in the stopped
 // state after configuration.
 //
-static void configCPUTimer(Uint32 cpuTimer, float freq, float period)
+static void configCPUTimer(uint32_t cpuTimer, float freq, float period)
 {
-    Uint32 temp;
+    uint32_t temp;
 
     //
     // Initialize timer period:
     //
-    temp = (Uint32)((freq / 1000000) * period);
+    temp = (uint32_t)((freq / 1000000) * period);
     CPUTimer_setPeriod(cpuTimer, temp - 1);
 
     //

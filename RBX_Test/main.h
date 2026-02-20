@@ -25,9 +25,6 @@
 // 프로젝트 전체에서 사용하는 타입을 여기서 정리합니다.
 #include "f28x_project.h"
 
-// // 이미 device.h에서 uint16_t로 선언된 것과 globalprototypes.h의 충돌을 막기 위함
-// #define f2838x_globalprototypes_H
-
 #include "DevCommon.h"
 #include "DevDspInit.h"
 #include "DevSci.h"
@@ -44,7 +41,7 @@
 
 
 /* ************************** [[   define   ]]  *********************************************************** */
-typedef unsigned char   Uint8; 
+//typedef uint8_t   Uint8; 
 
 
 
