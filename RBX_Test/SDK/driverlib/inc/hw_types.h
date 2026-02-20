@@ -71,7 +71,7 @@ typedef int16_t int8_t;
 #define HWREG_BP(x)                                                           \
         __byte_peripheral_32((uint32_t *)(x))
 #define HWREGB(x)                                                             \
-        __byte((int16_t *)(x),0)
+        __byte((int *)(x),0)
 
 //
 // Emulated Bitbanded write        

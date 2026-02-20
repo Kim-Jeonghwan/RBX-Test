@@ -478,10 +478,11 @@ Interrupt_disable(uint32_t interruptNumber);
 //*****************************************************************************
 //
 // Extern compiler intrinsic prototypes. See compiler User's Guide for details.
+// 컴파일러 내장 함수와 충돌을 피하기 위해 중복 선언을 주석 처리합니다.
 //
 //*****************************************************************************
-extern uint16_t __disable_interrupts(void);
-extern uint16_t __enable_interrupts(void);
+// extern uint16_t __disable_interrupts(void);
+// extern uint16_t __enable_interrupts(void);
 
 //*****************************************************************************
 //
