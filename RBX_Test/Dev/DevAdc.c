@@ -39,13 +39,13 @@
 
 
 /* ************************** [[   global   ]]  *********************************************************** */
-float lpf_PrevValue   = 0.0f;     // ADC LPF 이전 값
-float lpf_PrevPWM7a   = 0.0f;     // ADC LPF 이전 값 (PWM7a)
+float32_t lpf_PrevValue   = 0.0f;     // ADC LPF 이전 값
+float32_t lpf_PrevPWM7a   = 0.0f;     // ADC LPF 이전 값 (PWM7a)
 
 
 uint16_t  ResultsIndex    = 0u;       // ADC 결과 인덱스
 
-float AdcResults[BUFF_SIZE];      // ADC 결과 저장 버퍼
+float32_t AdcResults[BUFF_SIZE];      // ADC 결과 저장 버퍼
 
 /* ************************** [[  function  ]]  *********************************************************** */
 
@@ -66,10 +66,10 @@ float AdcResults[BUFF_SIZE];      // ADC 결과 저장 버퍼
 interrupt void AdcaIsr(void)
 {
     uint16_t i = 0u;
-    float AdcResultSUM = 0.0f;            // ADC 결과 합산 변수
+    float32_t AdcResultSUM = 0.0f;            // ADC 결과 합산 변수
 
     // ADCINA2 결과 읽기 및 전압 변환 ( 3.3 / 4096 = 0.0008056640625f)
-    xAdcApp.PotenRaw = (float)AdcaResultRegs.ADCRESULT0 * CONV_ADC_3_3V;
+    xAdcApp.PotenRaw = (float32_t)AdcaResultRegs.ADCRESULT0 * CONV_ADC_3_3V;
 
 	xTimer.Hzcnt++;
 
@@ -88,7 +88,7 @@ interrupt void AdcaIsr(void)
     }
 
     // 평균값 계산 및 전역 구조체 저장
-    xAdcApp.PotenMAVE = (AdcResultSUM / (float)DEFAULT_MAVE_COUNT);
+    xAdcApp.PotenMAVE = (AdcResultSUM / (float32_t)DEFAULT_MAVE_COUNT);
 
 
     AdcaRegs.ADCINTFLGCLR.bit.ADCINT1 = 1;      // ADC-A 인터럽트 플래그(ADCINT1) 클리어
@@ -183,33 +183,33 @@ void InitAdcModules(void)
 
 
 /*
-@funtion    float low_pass_filter(float input, float alpha, float *prev_output)
+@funtion    float32_t low_pass_filter(float32_t input, float32_t alpha, float32_t *prev_output)
 @brief      로우 패스 필터 (LPF) 구현
-@param      float input: 입력 값
-@param      float alpha: 필터 계수 (0~1)
-@param      float *prev_output: 이전 출력 값 저장 포인터
-@return     float: 필터링된 결과 값
+@param      float32_t input: 입력 값
+@param      float32_t alpha: 필터 계수 (0~1)
+@param      float32_t *prev_output: 이전 출력 값 저장 포인터
+@return     float32_t: 필터링된 결과 값
 @remark
     -
 */
-float low_pass_filter(float input, float alpha, float *prev_output)
+float32_t low_pass_filter(float32_t input, float32_t alpha, float32_t *prev_output)
 {
-    float output = alpha * input + (1.0f - alpha) * (*prev_output);
+    float32_t output = alpha * input + (1.0f - alpha) * (*prev_output);
     *prev_output = output;
     return output;
 }
 
 /*
-@funtion    float Within_f32(float val, float min, float max)
+@funtion    float32_t Within_f32(float32_t val, float32_t min, float32_t max)
 @brief      값의 범위를 제한 (Saturation)
-@param      float val: 입력 값
-@param      float min: 최솟값
-@param      float max: 최댓값
-@return     float: 제한된 범위 내의 결과
+@param      float32_t val: 입력 값
+@param      float32_t min: 최솟값
+@param      float32_t max: 최댓값
+@return     float32_t: 제한된 범위 내의 결과
 @remark
     -
 */
-float Within_f32(float val, float min, float max)
+float32_t Within_f32(float32_t val, float32_t min, float32_t max)
 {
     if (val <= min) return min;
     if (val >= max) return max;

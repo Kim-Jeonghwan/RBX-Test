@@ -26,14 +26,14 @@
 typedef union {
     uint16_t all;
     struct {
-        uint16_t ReadEn:1u;     // Bit 0: Read Enable (SSI Polling)
-        uint16_t SetTrig:1u;    // Bit 1: Set Sequence Trigger
-        uint16_t RstTrig:1u;    // Bit 2: Rst Sequence Trigger
+        bool ReadEn:1u;     // Bit 0: Read Enable (SSI Polling)
+        bool SetTrig:1u;    // Bit 1: Set Sequence Trigger
+        bool RstTrig:1u;    // Bit 2: Rst Sequence Trigger
         uint16_t Reserved_L:5u; // Bit 3-7: Reserved
-        uint16_t SetForce:1u;   // Bit 8: Manual Set Force
-        uint16_t RstForce:1u;   // Bit 9: Manual Rst Force
-        uint16_t PwrEn:1u;      // Bit 10: Power Manual Control
-        uint16_t ManualEn:1u;   // Bit 11: Manual Mode Enable
+        bool SetForce:1u;   // Bit 8: Manual Set Force
+        bool RstForce:1u;   // Bit 9: Manual Rst Force
+        bool PwrEn:1u;      // Bit 10: Power Manual Control
+        bool ManualEn:1u;   // Bit 11: Manual Mode Enable
         uint16_t Reserved_H:4u; // Bit 12-15: Reserved
     } bit;
 } uIpcCmd;
@@ -44,8 +44,8 @@ typedef union {
 typedef struct {
     uint16_t IncNumber;
     uIpcCmd Command;         // 구조체 대신 공용체 사용
-    float Reserved1;
-    float Reserved2;
+    float32_t Reserved1;
+    float32_t Reserved2;
 } stRcvIpcMsg1;
 
 /**
@@ -59,14 +59,14 @@ typedef struct
     uint16_t          IncNumber:8u;   // Sequence Number (0~255)
     
     /* --- 2. 상태 및 에러 플래그 (Status - 1 byte) --- */
-    uint16_t          IsValid:1u;     // Bit 0: 데이터 유효성
-    uint16_t          Err_PV:1u;      // Bit 1: 위치 에러
-    uint16_t          Err_CRC:1u;     // Bit 2: SSI CRC 에러
-    uint16_t          ReadStatus:1u;  // Bit 3: 폴링 중
-    uint16_t          EncBusy:1u;     // Bit 4: Zero 시퀀스 중
-    uint16_t          EncDone:1u;     // Bit 5: 설정 완료
-    uint16_t          EncPwrStat:1u;  // Bit 6: 전원 상태
-    uint16_t          ManualMode:1u;  // Bit 7: Manual Mode Status
+    bool              IsValid:1u;     // Bit 0: 데이터 유효성
+    bool              Err_PV:1u;      // Bit 1: 위치 에러
+    bool              Err_CRC:1u;     // Bit 2: SSI CRC 에러
+    bool              ReadStatus:1u;  // Bit 3: 폴링 중
+    bool              EncBusy:1u;     // Bit 4: Zero 시퀀스 중
+    bool              EncDone:1u;     // Bit 5: 설정 완료
+    bool              EncPwrStat:1u;  // Bit 6: 전원 상태
+    bool              ManualMode:1u;  // Bit 7: Manual Mode Status
 
     /* --- 3. 데이터 필드 (4 + 4 = 8 bytes) --- */
     uint32_t          EncoderAngle;   // Buf[5~8]

@@ -35,7 +35,7 @@
 typedef union
 {
     uint32_t 		u32;
-	float 	f32;
+	float32_t f32;
 
     struct
     {

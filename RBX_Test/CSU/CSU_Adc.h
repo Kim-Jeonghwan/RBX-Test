@@ -16,8 +16,8 @@
 
 /* ************************** [[   enum or struct   ]]  *************************************************** */
 typedef struct {
-    float PotenRaw;       /* ADCINA2 Raw 전압 */
-    float PotenMAVE;      /* ADCINA2 이동 평균 전압 */
+    float32_t PotenRaw;       /* ADCINA2 Raw 전압 */
+    float32_t PotenMAVE;      /* ADCINA2 이동 평균 전압 */
 } stAdcApp;
 
 

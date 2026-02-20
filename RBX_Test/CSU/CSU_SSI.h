@@ -45,13 +45,13 @@ typedef struct
 {
     uint16_t RAW[SSI_FRAME_SIZE]; /* SPI 수신 원본 (16bit x 3) */
     uint32_t PD;                  /* 20비트 위치 데이터 (D29-D08) */
-    uint16_t ZPD;                 /* 제로 포인트 설정 여부 (D32) */
-    uint16_t PV;                  /* 위치 유효성 (1:정상, 0:에러) */
-    uint16_t PS;                  /* 위치 동기화 상태 (1:동기화됨) */
-    uint16_t SD;                  /* 데이터 갱신 여부 (0:신규, 1:이전값) */
+    bool     ZPD;                 /* 제로 포인트 설정 여부 (D32) */
+    bool     PV;                  /* 위치 유효성 (1:정상, 0:에러) */
+    bool     PS;                  /* 위치 동기화 상태 (1:동기화됨) */
+    bool     SD;                  /* 데이터 갱신 여부 (0:신규, 1:이전값) */
     uint16_t CRC_RECV;            /* 수신된 CRC-7 값 */ 
     uint16_t CRC_CALC;            /* MCU에서 계산한 CRC-7 값 */
-    float    ANGLE;               /* 도(Degree) 단위 환산 각도 */
+    float32_t ANGLE;               /* 도(Degree) 단위 환산 각도 */
     bool     IS_VALID;            /* PV==1 && CRC 일치 시 true */
 } stSpiEnc;
 

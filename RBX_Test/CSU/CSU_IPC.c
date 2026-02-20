@@ -55,14 +55,14 @@ void recvIpcMessage(uint16_t ID, uint16_t Data[])
         
         xRcvIpcMsg1.Command.all = on16.u16;
 
-        /* 3. Reserved1 (float - Little Endian) */
+        /* 3. Reserved1 (float32_t - Little Endian) */
         on32.byte.B0 = (uint8_t)Data[pos++];
         on32.byte.B1 = (uint8_t)Data[pos++];
         on32.byte.B2 = (uint8_t)Data[pos++];
         on32.byte.B3 = (uint8_t)Data[pos++];
         xRcvIpcMsg1.Reserved1 = on32.f32;
 
-        /* 4. Reserved2 (float - Little Endian) */
+        /* 4. Reserved2 (float32_t - Little Endian) */
         on32.byte.B0 = (uint8_t)Data[pos++];
         on32.byte.B1 = (uint8_t)Data[pos++];
         on32.byte.B2 = (uint8_t)Data[pos++];
@@ -100,14 +100,14 @@ void sendIpcMessage1(void)
 
     /* 3. Status Bit Fields 직접 조립 (가장 안전한 방법) */
     on16.u16 = 0u; // 필수: 쓰레기 값 방지
-    on16.u16 |= (xXmtIpcMsg1.IsValid    & 0x01u) << 0u;
-    on16.u16 |= (xXmtIpcMsg1.Err_PV     & 0x01u) << 1u;
-    on16.u16 |= (xXmtIpcMsg1.Err_CRC    & 0x01u) << 2u;
-    on16.u16 |= (xXmtIpcMsg1.ReadStatus & 0x01u) << 3u;
-    on16.u16 |= (xXmtIpcMsg1.EncBusy    & 0x01u) << 4u;
-    on16.u16 |= (xXmtIpcMsg1.EncDone    & 0x01u) << 5u;
-    on16.u16 |= (xXmtIpcMsg1.EncPwrStat & 0x01u) << 6u;
-    on16.u16 |= (xXmtIpcMsg1.ManualMode & 0x01u) << 7u;
+    on16.u16 |= (xXmtIpcMsg1.IsValid    == true ? 1u : 0u) << 0u;
+    on16.u16 |= (xXmtIpcMsg1.Err_PV     == true ? 1u : 0u) << 1u;
+    on16.u16 |= (xXmtIpcMsg1.Err_CRC    == true ? 1u : 0u) << 2u;
+    on16.u16 |= (xXmtIpcMsg1.ReadStatus == true ? 1u : 0u) << 3u;
+    on16.u16 |= (xXmtIpcMsg1.EncBusy    == true ? 1u : 0u) << 4u;
+    on16.u16 |= (xXmtIpcMsg1.EncDone    == true ? 1u : 0u) << 5u;
+    on16.u16 |= (xXmtIpcMsg1.EncPwrStat == true ? 1u : 0u) << 6u;
+    on16.u16 |= (xXmtIpcMsg1.ManualMode == true ? 1u : 0u) << 7u;
     
     Buf[pos++] = on16.byte.B0; // Buf[4]: Status Byte (PC expects 1 byte)
 

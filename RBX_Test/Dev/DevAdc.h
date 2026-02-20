@@ -66,10 +66,10 @@ void InitialAdc(void);
 // ADC 모듈 초기화 함수
 void InitAdcModules(void);
 
-float low_pass_filter(float input, float alpha, float *prev_output);
+float32_t low_pass_filter(float32_t input, float32_t alpha, float32_t *prev_output);
 
 
-float Within_f32(float val, float min, float max);
+float32_t Within_f32(float32_t val, float32_t min, float32_t max);
 
 void initEPWM8(void);
 

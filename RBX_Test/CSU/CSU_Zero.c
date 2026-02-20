@@ -24,7 +24,7 @@ extern stXmtIpcMsg1 xXmtIpcMsg1;
 /* 정적 변수 */
 static eZeroStep xZeroStep = eZERO_IDLE;
 static uint32_t u32TickCnt = 0u;
-static uint16_t bIsSetAction = 0u; // 1: Set동작, 0: Rst동작 플래그
+static bool bIsSetAction = false; // true: Set동작, false: Rst동작 플래그
 
 
 /* ************************** [[  function  ]]  *********************************************************** */
@@ -63,9 +63,9 @@ void initEncoderZero(void)
     GPIO_writePin(GPIO_ENC_PWR_EN, 1u); 
     
     // 전원 상태 초기화 (GPIO 상태 반영)
-    xXmtIpcMsg1.EncPwrStat = (uint16_t)GPIO_readPin(GPIO_ENC_PWR_EN);
-    xXmtIpcMsg1.EncBusy    = 0u;
-    xXmtIpcMsg1.EncDone    = 0u;
+    xXmtIpcMsg1.EncPwrStat = (bool)GPIO_readPin(GPIO_ENC_PWR_EN);
+    xXmtIpcMsg1.EncBusy    = false;
+    xXmtIpcMsg1.EncDone    = false;
 }
 
 /**
@@ -76,9 +76,9 @@ void procEncoderZero(void)
     // 시퀀스 진행 중(IDLE이 아님)에 들어오는 트리거 및 메뉴얼 명령은 무시하고 클리어
     if(xZeroStep != eZERO_IDLE)
     {
-        xRcvIpcMsg1.Command.bit.SetTrig  = 0u;
-        xRcvIpcMsg1.Command.bit.RstTrig  = 0u;
-        xRcvIpcMsg1.Command.bit.ManualEn = 0u; // 메뉴얼 전환 차단
+        xRcvIpcMsg1.Command.bit.SetTrig  = false;
+        xRcvIpcMsg1.Command.bit.RstTrig  = false;
+        xRcvIpcMsg1.Command.bit.ManualEn = false; // 메뉴얼 전환 차단
     }
 
     // 0. 수동 제어 처리
@@ -89,30 +89,30 @@ void procEncoderZero(void)
     {
         case eZERO_IDLE:
             // 트리거 확인 (메뉴얼 모드가 아닐 때만 작동)
-            if(xRcvIpcMsg1.Command.bit.ManualEn == 0u)
+            if(xRcvIpcMsg1.Command.bit.ManualEn == false)
             {
-                if(xRcvIpcMsg1.Command.bit.SetTrig == 1u)
+                if(xRcvIpcMsg1.Command.bit.SetTrig == true)
                 {
-                    bIsSetAction = 1u; // Set 시퀀스 결정
+                    bIsSetAction = true; // Set 시퀀스 결정
                     xZeroStep = eZERO_PWR_OFF;
                 }
-                else if(xRcvIpcMsg1.Command.bit.RstTrig == 1u)
+                else if(xRcvIpcMsg1.Command.bit.RstTrig == true)
                 {
-                    bIsSetAction = 0u; // Rst 시퀀스 결정
+                    bIsSetAction = false; // Rst 시퀀스 결정
                     xZeroStep = eZERO_PWR_OFF;
                 }
             }
 
             // 시퀀스가 시작되었거나, 메뉴얼 모드인데 트리거가 들어온 경우 비트 클리어
-            if(xZeroStep == eZERO_PWR_OFF || xRcvIpcMsg1.Command.bit.ManualEn == 1u)
+            if(xZeroStep == eZERO_PWR_OFF || xRcvIpcMsg1.Command.bit.ManualEn == true)
             {
-                xRcvIpcMsg1.Command.bit.SetTrig = 0u;
-                xRcvIpcMsg1.Command.bit.RstTrig = 0u;
+                xRcvIpcMsg1.Command.bit.SetTrig = false;
+                xRcvIpcMsg1.Command.bit.RstTrig = false;
 
                 if(xZeroStep == eZERO_PWR_OFF)
                 {
-                    xXmtIpcMsg1.EncBusy = 1u;
-                    xXmtIpcMsg1.EncDone = 0u;
+                    xXmtIpcMsg1.EncBusy = true;
+                    xXmtIpcMsg1.EncDone = false;
                 }
             }
             break;
@@ -123,7 +123,7 @@ void procEncoderZero(void)
             // [단계 1] 전원 차단 및 결정된 신호(SET/RST) 출력
             GPIO_writePin(GPIO_ENC_PWR_EN, 0u);
 
-            if(bIsSetAction == 1u) {
+            if(bIsSetAction == true) {
                 GPIO_writePin(GPIO_ENC_ZERO_SET, 1u);
                 GPIO_writePin(GPIO_ENC_ZERO_RST, 0u);
             } else {
@@ -162,8 +162,8 @@ void procEncoderZero(void)
                 GPIO_writePin(GPIO_ENC_ZERO_SET, 0u);
                 GPIO_writePin(GPIO_ENC_ZERO_RST, 0u);
                 
-                xXmtIpcMsg1.EncBusy = 0u;
-                xXmtIpcMsg1.EncDone = 1u;
+                xXmtIpcMsg1.EncBusy = false;
+                xXmtIpcMsg1.EncDone = true;
                 u32TickCnt = 0u;
                 xZeroStep = eZERO_DONE_WAIT;
 
@@ -176,7 +176,7 @@ void procEncoderZero(void)
             // [단계 4] 완료 비트 1초 유지 (10ms * 100)
             if(++u32TickCnt >= 100u)
             {
-                xXmtIpcMsg1.EncDone = 0u;
+                xXmtIpcMsg1.EncDone = false;
                 xZeroStep = eZERO_IDLE;
 
             setLedStatus(&xLed.ledStep1, LED_OFF); // 37번 OFF
@@ -195,7 +195,7 @@ void procEncoderZero(void)
     }
 
     // [중요] 항상 실제 GPIO 출력 상태를 읽어서 IPC 상태 비트에 반영
-    xXmtIpcMsg1.EncPwrStat = (uint16_t)GPIO_readPin(GPIO_ENC_PWR_EN);
+    xXmtIpcMsg1.EncPwrStat = (bool)GPIO_readPin(GPIO_ENC_PWR_EN);
 
 
 }
@@ -211,7 +211,7 @@ void manualCtrlZero(void)
         // 수동 모드 상태 비트 업데이트
         xXmtIpcMsg1.ManualMode = xRcvIpcMsg1.Command.bit.ManualEn;
 
-        if(xRcvIpcMsg1.Command.bit.ManualEn == 1u)
+        if(xRcvIpcMsg1.Command.bit.ManualEn == true)
         {
             // 수동 모드: PC 명령을 하드웨어에 직접 반영
             GPIO_writePin(GPIO_ENC_ZERO_SET, (uint32_t)xRcvIpcMsg1.Command.bit.SetForce);
@@ -229,6 +229,6 @@ void manualCtrlZero(void)
     else
     {
         // 시퀀스 중에는 메뉴얼 상태 비트를 무조건 0으로 유지 (IDLE 아닐 때 진입 방지)
-        xXmtIpcMsg1.ManualMode = 0u;
+        xXmtIpcMsg1.ManualMode = false;
     }
 }

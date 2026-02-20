@@ -42,16 +42,20 @@ void initEncoderSSI(void)
         xEncoderA.RAW[i] = 0u;
     }
     xEncoderA.PD       = 0u;
+    xEncoderA.ZPD      = false;
+    xEncoderA.PV       = false;
+    xEncoderA.PS       = false;
+    xEncoderA.SD       = false;
     xEncoderA.ANGLE    = 0.0f;
     xEncoderA.IS_VALID = false;
     
     /* IPC 송신 구조체 초기화 */
     xXmtIpcMsg1.EncoderAngle = 0u;
     xXmtIpcMsg1.EncoderRawPD = 0u;
-    xXmtIpcMsg1.IsValid      = 0u;
-    xXmtIpcMsg1.ReadStatus   = 0u;
-    xXmtIpcMsg1.Err_PV       = 0u;
-    xXmtIpcMsg1.Err_CRC      = 0u;
+    xXmtIpcMsg1.IsValid      = false;
+    xXmtIpcMsg1.ReadStatus   = false;
+    xXmtIpcMsg1.Err_PV       = false;
+    xXmtIpcMsg1.Err_CRC      = false;
 }
 
 /**
@@ -64,9 +68,9 @@ void PollingEncoderSSI(void)
 
     /* 조건: 전원 인가(EncPwrStat) 및 PC 읽기 명령(ReadEn) 활성 시 */
     /* 시퀀스 진행 중(EncBusy == 1)에는 읽기 동작을 차단하여 시퀀스 제어 우선 */
-    if((xXmtIpcMsg1.EncPwrStat == 1u) && (xRcvIpcMsg1.Command.bit.ReadEn == 1u) && (xXmtIpcMsg1.EncBusy == 0u))
+    if((xXmtIpcMsg1.EncPwrStat == true) && (xRcvIpcMsg1.Command.bit.ReadEn == true) && (xXmtIpcMsg1.EncBusy == false))
     {
-        xXmtIpcMsg1.ReadStatus = 1u; // 동작 중 피드백
+        xXmtIpcMsg1.ReadStatus = true; // 동작 중 피드백
 
         // 1. SPI RX 버퍼 정리 (Flush)
         while(SpiaRegs.SPISTS.bit.INT_FLAG != 0u) 
@@ -89,10 +93,10 @@ void PollingEncoderSSI(void)
     else
     {
         // 전원이 꺼져 있거나 읽기 중지 상태인 경우
-        xXmtIpcMsg1.ReadStatus = 0u;
-        xXmtIpcMsg1.IsValid    = 0u; 
+        xXmtIpcMsg1.ReadStatus = false;
+        xXmtIpcMsg1.IsValid    = false; 
         
-        if(xXmtIpcMsg1.EncPwrStat == 0u)
+        if(xXmtIpcMsg1.EncPwrStat == false)
         {
             xEncoderA.IS_VALID = false;
         }
@@ -112,11 +116,11 @@ static void updateEncoderState(void)
                  ((uint64_t)xEncoderA.RAW[2]);
 
     // 2. 비트맵 기반 필드 추출(Datasheet)
-    xEncoderA.ZPD       = (uint16_t)((full_frame >> 32ULL) & 0x01ULL); 
-    xEncoderA.PV        = (uint16_t)((full_frame >> 31ULL) & 0x01ULL); 
-    xEncoderA.PS        = (uint16_t)((full_frame >> 30ULL) & 0x01ULL); 
+    xEncoderA.ZPD       = ((full_frame >> 32ULL) & 0x01ULL) ? true : false; 
+    xEncoderA.PV        = ((full_frame >> 31ULL) & 0x01ULL) ? true : false; 
+    xEncoderA.PS        = ((full_frame >> 30ULL) & 0x01ULL) ? true : false; 
     xEncoderA.PD        = (uint32_t)((full_frame >> 8ULL)  & 0xFFFFFULL); 
-    xEncoderA.SD        = (uint16_t)((full_frame >> 7ULL)  & 0x01ULL); 
+    xEncoderA.SD        = ((full_frame >> 7ULL)  & 0x01ULL) ? true : false; 
     xEncoderA.CRC_RECV  = (uint16_t)(full_frame & 0x7FULL);
 
     // 3. CRC 계산 (D7 ~ D32 영역, 총 26비트)
@@ -124,26 +128,26 @@ static void updateEncoderState(void)
     xEncoderA.CRC_CALC = Calculate_CRC7(data_for_crc);
 
     // 4. 검증 및 IPC 데이터 갱신
-    if ((xEncoderA.PV == 1u) && (xEncoderA.CRC_RECV == xEncoderA.CRC_CALC)) 
+    if ((xEncoderA.PV == true) && (xEncoderA.CRC_RECV == xEncoderA.CRC_CALC)) 
     {
         xEncoderA.IS_VALID = true;
-        xEncoderA.ANGLE = ((float)xEncoderA.PD / 1048576.0f) * 360.0f;
+        xEncoderA.ANGLE = ((float32_t)xEncoderA.PD / 1048576.0f) * 360.0f;
 
         // IPC 송신 패킷 업데이트
-        xXmtIpcMsg1.IsValid      = 1u;
+        xXmtIpcMsg1.IsValid      = true;
         xXmtIpcMsg1.EncoderAngle = (uint32_t)(xEncoderA.ANGLE * 10.0f + 0.5f); // 소수점 1자리 반올림 (예: 12.34 -> 123)
         xXmtIpcMsg1.EncoderRawPD = xEncoderA.PD;
-        xXmtIpcMsg1.Err_PV       = 0u;
-        xXmtIpcMsg1.Err_CRC      = 0u;
+        xXmtIpcMsg1.Err_PV       = false;
+        xXmtIpcMsg1.Err_CRC      = false;
     } 
     else 
     {
         xEncoderA.IS_VALID = false;
         
         // 에러 상태 알림
-        xXmtIpcMsg1.IsValid      = 0u;
-        xXmtIpcMsg1.Err_PV       = (xEncoderA.PV == 0u) ? 1u : 0u;
-        xXmtIpcMsg1.Err_CRC      = (xEncoderA.CRC_RECV != xEncoderA.CRC_CALC) ? 1u : 0u;
+        xXmtIpcMsg1.IsValid      = false;
+        xXmtIpcMsg1.Err_PV       = (xEncoderA.PV == false) ? true : false;
+        xXmtIpcMsg1.Err_CRC      = (xEncoderA.CRC_RECV != xEncoderA.CRC_CALC) ? true : false;
         xXmtIpcMsg1.EncoderRawPD = xEncoderA.PD; // 분석용 원본 데이터는 유지
     }
 }

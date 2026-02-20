@@ -75,14 +75,14 @@ void EqeptoEncoder(void)
     xXmtIpcMsg1.EncoderAngle = (uint32_t)(EQEP_getPosition(EQEP1_BASE) * (360.0f / 96.0f) * 10 + 0.5f); // +0.5f : 소수 1자리 반올림 위함
         
     // 2. RawPD 계산
-    xXmtIpcMsg1.EncoderRawPD = (uint32_t)(((float)EQEP_getPosition(EQEP1_BASE) / 96) * 1048576.0f);
+    xXmtIpcMsg1.EncoderRawPD = (uint32_t)(((float32_t)EQEP_getPosition(EQEP1_BASE) / 96) * 1048576.0f);
 }
 
 
 void updateHwSwitchStatus2(void)
 {
     // GPIO 22번이 1(High)이면 eQEP 카운터 자체를 0으로 리셋
-    if(GPIO_readPin(GPIO_ZEROSETQEP_SWITCH) == 1u)
+    if(GPIO_readPin(GPIO_ZEROSETQEP_SWITCH) == true)
     {
         EQEP_setPosition(EQEP1_BASE, 0u); // 하드웨어 카운터 레지스터를 0으로 설정
         

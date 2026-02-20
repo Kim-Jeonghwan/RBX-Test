@@ -19,7 +19,7 @@ stLedStatus xLed;
 
 
 /* ************************** [[  static prototype  ]]  *************************************************** */
-static void HW_writeLedPin(uint16_t Index, uint16_t State); 
+static void HW_writeLedPin(uint16_t Index, bool State); 
 static void HW_toggleLedPin(uint16_t Index);
 
 
@@ -161,7 +161,7 @@ void updateLedStatus(void)
  * @param pLed 대상 LED 구조체 포인터
  * @param State LED_ON(1) 또는 LED_OFF(0)
  */
-void setLedStatus(stLed *pLed, uint16_t State)
+void setLedStatus(stLed *pLed, bool State)
 {
     if(pLed->State != State)
     {
@@ -177,7 +177,7 @@ void setLedStatus(stLed *pLed, uint16_t State)
  * @param State LED_TOGGLE(1) 또는 LED_NONE(0)
  * @param Time 토글 주기 카운트
  */
-void setLedModeToggle(stLed *pLed, uint16_t State, uint16_t Time)
+void setLedModeToggle(stLed *pLed, bool State, uint16_t Time)
 {
     pLed->Toggle = State;
     pLed->Time   = Time;
@@ -189,7 +189,7 @@ void setLedModeToggle(stLed *pLed, uint16_t State, uint16_t Time)
 /**
  * @brief 하드웨어 GPADAT 레지스터 직접 제어 (Internal Only)
  */
-static void HW_writeLedPin(uint16_t Index, uint16_t State)
+static void HW_writeLedPin(uint16_t Index, bool State)
 {
 	switch(Index)
 	{
@@ -298,7 +298,7 @@ static void HW_toggleLedPin(uint16_t Index)
  */
 void updateOrangeLed(void)
 {
-    if (xXmtIpcMsg1.IsValid == 0u)
+    if (xXmtIpcMsg1.IsValid == false)
     {
         setLedStatus(&xLed.ledOrange, LED_ON);
     }
