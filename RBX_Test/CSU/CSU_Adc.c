@@ -16,7 +16,7 @@ stAdcApp xAdcApp;
 /**
  * @brief ADC 애플리케이션 초기화
  */
-void Initial_CSU_Adc(void)
+void Initial_Adc(void)
 {
     xAdcApp.PotenRaw = 0.0f;
     xAdcApp.PotenMAVE = 0.0f;

@@ -73,17 +73,17 @@ void PollingEncoderSSI(void)
         xXmtIpcMsg1.ReadStatus = true; // 동작 중 피드백
 
         // 1. SPI RX 버퍼 정리 (Flush)
-        while(SpiaRegs.SPISTS.bit.INT_FLAG != 0u) 
+        while(SpicRegs.SPISTS.bit.INT_FLAG != 0u) 
         {
-            (void)SpiaRegs.SPIRXBUF;
+            (void)SpicRegs.SPIRXBUF;
         }
 
         // 2. 48비트 프레임 수신 (16bit x 3회)
         // SSI_CS_LOW; // 필요 시 활성화
         for(i = 0; i < 3u; i++)
         {
-            SPI_writeDataBlockingNonFIFO(SPIA_BASE, 0xFFFF);
-            xEncoderA.RAW[i] = SPI_readDataBlockingNonFIFO(SPIA_BASE);
+            SPI_writeDataBlockingNonFIFO(SPIC_BASE, 0xFFFF);
+            xEncoderA.RAW[i] = SPI_readDataBlockingNonFIFO(SPIC_BASE);
         }
         // SSI_CS_HIGH; // 필요 시 활성화
 

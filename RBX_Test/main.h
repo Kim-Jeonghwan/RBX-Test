@@ -38,6 +38,7 @@
 #include "CSU_Zero.h"
 #include "CSU_eQEP.h"
 #include "CSU_Adc.h"
+#include "CSU_EEPROM.h"
 
 
 /* ************************** [[   define   ]]  *********************************************************** */

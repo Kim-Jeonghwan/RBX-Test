@@ -119,6 +119,8 @@ static void cycle_10ms(void)
 
     // 3. 통신 메시지 송신
     sendIpcMessage1();
+
+	EEPROM_Task();
 }
 
 

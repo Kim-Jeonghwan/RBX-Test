@@ -29,7 +29,7 @@ extern stAdcApp xAdcApp;
 /**
  * @brief ADC 애플리케이션 초기화
  */
-void Initial_CSU_Adc(void);
+void Initial_Adc(void);
 
 /**
  * @brief 100ms 주기로 실행되는 ADC 데이터 처리 루틴

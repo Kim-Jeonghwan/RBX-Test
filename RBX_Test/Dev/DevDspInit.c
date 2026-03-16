@@ -100,8 +100,7 @@ static void Initial_GPIO(void)
 */
 static void Init_GpioDin(void)
 {
-
-
+    initGPIODinEEPROM();
 }
 
 
@@ -134,7 +133,7 @@ static void InitialPeripherals(void)
 {
 	InitialAdc();
 	initEPWM8();
-    Initial_CSU_Adc();
+    Initial_Adc();
 	
 	Initial_SPI();
 
@@ -148,6 +147,8 @@ static void InitialPeripherals(void)
 
 	Init_Eqep1Gpio();
 	Init_Eqep1();
+
+	EEPROM_Init();
 
 }
 
