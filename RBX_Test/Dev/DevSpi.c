@@ -92,17 +92,14 @@ static void InitSpia(void)
     GPIO_setPinConfig(GPIO_58_SPIA_SIMO);
     GPIO_setPadConfig(EEPROM_SIMO_GPIOA, GPIO_PIN_TYPE_STD);
     GPIO_setQualificationMode(EEPROM_SIMO_GPIOA, GPIO_QUAL_ASYNC);
-    GPIO_setDirectionMode(EEPROM_SIMO_GPIOA, GPIO_DIR_MODE_OUT);
 
     GPIO_setPinConfig(GPIO_59_SPIA_SOMI);
     GPIO_setPadConfig(EEPROM_SOMI_GPIOA, GPIO_PIN_TYPE_STD);
     GPIO_setQualificationMode(EEPROM_SOMI_GPIOA, GPIO_QUAL_ASYNC);
-    GPIO_setDirectionMode(EEPROM_SOMI_GPIOA, GPIO_DIR_MODE_IN);
 
     GPIO_setPinConfig(GPIO_60_SPIA_CLK);
     GPIO_setPadConfig(EEPROM_CLK_GPIOA, GPIO_PIN_TYPE_STD);
     GPIO_setQualificationMode(EEPROM_CLK_GPIOA, GPIO_QUAL_ASYNC);
-    GPIO_setDirectionMode(EEPROM_CLK_GPIOA, GPIO_DIR_MODE_OUT);
 
     // CS를 일반 GPIO 출력으로 설정
     GPIO_setPinConfig(GPIO_61_GPIO61);
