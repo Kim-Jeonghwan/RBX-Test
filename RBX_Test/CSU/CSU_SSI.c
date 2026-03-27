@@ -67,25 +67,28 @@ void PollingEncoderSSI(void)
     uint16_t i;
 
     /* 조건: 전원 인가(EncPwrStat) 및 PC 읽기 명령(ReadEn) 활성 시 */
-    /* 시퀀스 진행 중(EncBusy == 1)에는 읽기 동작을 차단하여 시퀀스 제어 우선 */
+    /* 시퀀스 진행 중(EncBusy == true)에는 읽기 동작을 차단하여 시퀀스 제어 우선 */
     if((xXmtIpcMsg1.EncPwrStat == true) && (xRcvIpcMsg1.Command.bit.ReadEn == true) && (xXmtIpcMsg1.EncBusy == false))
     {
         xXmtIpcMsg1.ReadStatus = true; // 동작 중 피드백
 
         // 1. SPI RX 버퍼 정리 (Flush)
-        while(SpicRegs.SPISTS.bit.INT_FLAG != 0u) 
+        while(SpiaRegs.SPISTS.bit.INT_FLAG != 0u) 
         {
-            (void)SpicRegs.SPIRXBUF;
+            (void)SpiaRegs.SPIRXBUF;
         }
 
         // 2. 48비트 프레임 수신 (16bit x 3회)
-        // SSI_CS_LOW; // 필요 시 활성화
+        // [필수 보완] Zettlex IncOder 스펙 (타이밍 다이어그램): 
+        // 바이트(또는 워드) 간 통신 유휴 시간(T_cki)이 10us를 초과하면 인코더가 프레임을 리셋하고 처음부터 다시 보냅니다.
+        // for문 도중 인터럽트가 걸려 지연되는 것을 막기 위해 통신 중 인터럽트를 잠시 끕니다.
+        DINT;
         for(i = 0; i < 3u; i++)
         {
-            SPI_writeDataBlockingNonFIFO(SPIC_BASE, 0xFFFF);
-            xEncoderA.RAW[i] = SPI_readDataBlockingNonFIFO(SPIC_BASE);
+            SPI_writeDataBlockingNonFIFO(SPIA_BASE, 0xFFFF);
+            xEncoderA.RAW[i] = SPI_readDataBlockingNonFIFO(SPIA_BASE);
         }
-        // SSI_CS_HIGH; // 필요 시 활성화
+        EINT;
 
         // 3. 수신 데이터 해석
         updateEncoderState(); 
@@ -153,26 +156,36 @@ static void updateEncoderState(void)
 }
 
 /**
- * @brief 다항식 0x5B를 사용한 CRC-7 계산
+ * @brief Zettlex IncOder 실제 하드웨어 방식(Augmented CRC-7) 적용
  */
 static uint16_t Calculate_CRC7(uint32_t data_26bit)
 {
-    uint32_t i;
-    // 데이터 시트: CRC는 D7이 LSB로 오도록 4바이트(32비트) 워드 내에서 정렬됨 
-    // 26비트 데이터를 32비트 워드의 MSB 쪽으로 밀어서 계산 준비
-    uint32_t remainder = data_26bit << (32 - 26); 
-    uint32_t polynomial = (uint32_t)0x5B << (32 - 7); // 0x5B 다항식을 MSB에 정렬
+    uint8_t crc = 0;
+    int32_t i;
+    
+    // Zettlex 매뉴얼의 "32 bit word..." 텍스트는 오기재이거나 특정 하드웨어 구조를 오해하게 적어둔 것 같음.
+    // (예: 텍스트 그대로 연산하면 19, 실제 수신 RECV 값은 50)
 
-    for (i = 0; i < 26; i++)
+    // 1. 26비트 데이터 처리 (MSB인 D32부터 차례대로)
+    for (i = 25; i >= 0; i--)
     {
-        // 최상위 비트(MSB)가 1이면 다항식으로 XOR 연산
-        if (remainder & 0x80000000)
-        {
-            remainder ^= polynomial;
-        }
-        remainder <<= 1;
+        uint8_t bit = (data_26bit >> i) & 1;
+        uint8_t inv = (crc & 0x40) ? 1 : 0;
+        
+        crc = ((crc << 1) | bit) & 0x7F;
+        if (inv) { crc ^= 0x5B; }
+    }
+    
+    // 2. 7개의 '0' 비트를 추가로 밀어넣음 (Augmented Zero Padding)
+    // 이 과정을 거쳐야 실제 수신된 CRC_RECV 값과 완벽히 일치합니다.
+    for (i = 0; i < 7; i++)
+    {
+        uint8_t inv = (crc & 0x40) ? 1 : 0;
+        
+        crc = (crc << 1) & 0x7F;
+        if (inv) { crc ^= 0x5B; }
     }
 
-    // 최종 결과를 오른쪽으로 밀어 7비트만 남김 
-    return (uint16_t)(remainder >> (32 - 7));
+    return (uint16_t)crc;
 }
+
